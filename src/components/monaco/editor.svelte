@@ -34,8 +34,17 @@
 
   import { onMount } from 'svelte';
   let container: HTMLElement;
+  let outer: HTMLElement;
   let editor: MonacoEditor.IStandaloneCodeEditor;
   let destroyed = false;
+  let prevWidth: number = -1;
+  let prevHeight: number = -1;
+
+  /** Should the editor be read only. Defaults to false. */
+  export let readOnly: boolean = false;
+
+  /** The theme to be used for rendering. */
+  export let theme: 'vs' | 'vs-dark' | 'hc-black' = 'vs-dark';
 
   var jsCode = [
     '"use strict";',
@@ -49,10 +58,38 @@
 
   function init() {
     if (destroyed) return;
-    editor = monaco.editor.create(container, {
-      value: jsCode,
-      language: 'javascript',
-    });
+    editor = monaco.editor.create(
+      container,
+      {
+        value: jsCode,
+        language: 'javascript',
+        roundedSelection: false,
+        scrollBeyondLastLine: false,
+        readOnly,
+        theme,
+        dimension: {
+          width: (prevWidth = outer.clientWidth),
+          height: (prevHeight = outer.clientHeight),
+        },
+      },
+      {
+        storageService: {
+          get() {},
+          getBoolean(key: string) {
+            if (key === 'expandSuggestionDocs') return true;
+            return false;
+          },
+          store() {},
+          onWillSaveState() {},
+          onDidChangeStorage() {},
+        },
+      }
+    );
+
+    // The first one is set to 700ms to prevent a screen flush, and the second one
+    // is there just to be safe.
+    setTimeout(resize, 700);
+    setTimeout(resize, 1500);
   }
 
   onMount(() => {
@@ -66,13 +103,40 @@
       destroyed = true;
       if (editor) {
         editor.dispose();
+        editor = undefined;
       }
     };
   });
+
+  /**
+   * Call this function when the size of the container of this editor has changed.
+   */
+  export function resize() {
+    if (!editor) return;
+    const width = outer.clientWidth;
+    const height = outer.clientHeight;
+    if (width === prevWidth && height === prevHeight) return;
+    prevWidth = width;
+    prevHeight = height;
+    editor.layout({ width, height });
+  }
+
+  $: {
+    if (editor) {
+      editor.updateOptions({
+        readOnly,
+        theme,
+      });
+    }
+  }
 </script>
+
+<svelte:window on:resize={resize} />
 
 <svelte:head>
   <link rel="stylesheet" href="/monaco/monaco-style.css" />
 </svelte:head>
 
-<div class="monaco-container" bind:this={container} style="height: 500px; text-align: left" />
+<div bind:this={outer} style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+  <div bind:this={container} style="position: absolute;" />
+</div>
