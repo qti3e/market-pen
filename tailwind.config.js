@@ -33,6 +33,10 @@ module.exports = {
             ...colors,
             primary: colors.gray,
             secondary: colors.indigo,
+            fg: {
+                primary: colors.white,
+                secondary: colors.white
+            }
         },
         extend: {},
     },
