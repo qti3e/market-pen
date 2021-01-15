@@ -1,5 +1,5 @@
 <script lang="ts">
-import Ohlc from './ohlc.svelte';
+  import Ohlc from './ohlc.svelte';
 </script>
 
-<Ohlc></Ohlc>
+<Ohlc />

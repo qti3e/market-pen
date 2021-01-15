@@ -1,85 +1,25 @@
-<style>
-  .upGreenArrow {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 4.5px 12px 4.5px;
-    border-color: transparent transparent #00ff00 transparent;
-  }
-
-  .downRedArrow {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 12px 4.5px 0 4.5px;
-    border-color: #ff0000 transparent transparent transparent;
-  }
-
-  .upArrow {
-    position: relative;
-    top: -15px;
-    left: -10px;
-    width: 0;
-    height: 0;
-    border: 6px solid transparent;
-    border-bottom-color: #00ff00;
-  }
-  .upArrow:after {
-    position: absolute;
-    content: '';
-    top: 20px;
-    left: -3px;
-    width: 6px;
-    height: 10px;
-    background: #00ff00;
-  }
-
-  .downArrow {
-    position: relative;
-    top: 18px;
-    left: -10px;
-    width: 0;
-    height: 0;
-    border: 6px solid transparent;
-    border-top-color: #ff0000;
-  }
-  .downArrow:after {
-    position: absolute;
-    content: '';
-    top: -15px;
-    left: -3px;
-    width: 6px;
-    height: 10px;
-    background: #ff0000;
-  }
-
-  /* d3 candle stick start */
-
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: #fff;
-    shape-rendering: crispEdges;
-  }
-
-  .axis text {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 11px;
-    fill: #fff;
-  }
-
-  /* d3 candle stick end */
-</style>
-
-<script>
-  import { onMount } from "svelte";
+<script lang="ts">
+  import { onMount } from 'svelte';
   import * as d3 from 'd3';
 
-  /** @type HTMLElement */
-  let container;
+  let outer: HTMLElement;
+  let element: SVGSVGElement;
+  let resizeTimer: number;
+  let destroyed = false;
+  let prevWidth = -1;
+  let prevHeight = -1;
+  let resizeFn: (w: number, h: number) => void;
+
+  interface DataPoint {
+    Date: Date;
+    Open: string;
+    High: string;
+    Low: string;
+    Close: string;
+  }
 
   async function drawChart() {
-    const prices = await d3.csv('/FTSE.csv');
+    const prices: DataPoint[] = (await d3.csv('/FTSE.csv')) as any;
     const months = {
       0: 'Jan',
       1: 'Feb',
@@ -97,50 +37,53 @@
 
     var dateFormat = d3.timeParse('%Y-%m-%d');
     for (var i = 0; i < prices.length; i++) {
-      prices[i]['Date'] = dateFormat(prices[i]['Date']);
+      prices[i]['Date'] = dateFormat(prices[i]['Date'] as any);
     }
 
-    const margin = { top: 15, right: 65, bottom: 205, left: 50 },
-      w = 1000 - margin.left - margin.right,
-      h = 625 - margin.top - margin.bottom;
+    const margin = { top: 15, right: 15, bottom: 65, left: 45 };
+    let w = prevWidth - margin.left - margin.right;
+    let h = prevHeight - margin.top - margin.bottom;
 
-    var svg = d3
-      .select(container)
+    const svg = d3
+      .select(element)
       .attr('width', w + margin.left + margin.right)
       .attr('height', h + margin.top + margin.bottom)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    const dates = prices.map(price => price['Date']);
+    const dates = prices.map((price) => price['Date']);
 
-    var xmin = d3.min(prices.map((r) => r.Date.getTime()));
-    var xmax = d3.max(prices.map((r) => r.Date.getTime()));
-    var xScale = d3.scaleLinear().domain([-1, dates.length]).range([0, w]);
-    var xDateScale = d3.scaleQuantize().domain([0, dates.length]).range(dates);
-    let xBand = d3.scaleBand().domain(d3.range(-1, dates.length)).range([0, w]).padding(0.3);
-    var xAxis = d3
-      .axisBottom()
-      .scale(xScale)
-      .tickFormat(function (d) {
-        d = dates[d];
-        let hours = d.getHours();
-        let minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
-        let amPM = hours < 13 ? 'am' : 'pm';
-        return (
-          hours +
-          ':' +
-          minutes +
-          amPM +
-          ' ' +
-          d.getDate() +
-          ' ' +
-          months[d.getMonth()] +
-          ' ' +
-          d.getFullYear()
-        );
-      });
+    const xScale = d3.scaleLinear().domain([-1, dates.length]).range([0, w]);
+    const xDateScale = d3
+      .scaleQuantize()
+      .domain([0, dates.length])
+      .range(dates as any);
+    const xBand = d3
+      .scaleBand()
+      .domain(d3.range(-1, dates.length) as any)
+      .range([0, w])
+      .padding(0.3);
 
-    svg
+    const xAxis = d3.axisBottom(xScale).tickFormat(function (i) {
+      const d = dates[i as number];
+      let hours = d.getHours();
+      let minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+      let amPM = hours < 13 ? 'am' : 'pm';
+      return (
+        hours +
+        ':' +
+        minutes +
+        amPM +
+        ' ' +
+        d.getDate() +
+        ' ' +
+        months[d.getMonth()] +
+        ' ' +
+        d.getFullYear()
+      );
+    });
+
+    const rect = svg
       .append('rect')
       .attr('id', 'rect')
       .attr('width', w)
@@ -149,7 +92,7 @@
       .style('pointer-events', 'all')
       .attr('clip-path', 'url(#clip)');
 
-    var gX = svg
+    const gX = svg
       .append('g')
       .attr('class', 'axis x-axis') //Assign "axis" class
       .attr('transform', 'translate(0,' + h + ')')
@@ -157,46 +100,45 @@
 
     gX.selectAll('.tick text').call(wrap, xBand.bandwidth());
 
-    var ymin = d3.min(prices.map((r) => r.Low));
-    var ymax = d3.max(prices.map((r) => r.High));
-    var yScale = d3.scaleLinear().domain([ymin, ymax]).range([h, 0]).nice();
-    var yAxis = d3.axisLeft().scale(yScale);
+    const ymin = +d3.min(prices.map((r) => r.Low));
+    const ymax = +d3.max(prices.map((r) => r.High));
+    const yScale = d3.scaleLinear().domain([ymin, ymax]).range([h, 0]).nice();
+    const yAxis = d3.axisLeft(yScale);
 
-    var gY = svg.append('g').attr('class', 'axis y-axis').call(yAxis);
-
-    var chartBody = svg.append('g').attr('class', 'chartBody').attr('clip-path', 'url(#clip)');
+    const gY = svg.append('g').attr('class', 'axis y-axis').call(yAxis);
+    const chartBody = svg.append('g').attr('class', 'chartBody').attr('clip-path', 'url(#clip)');
 
     // draw rectangles
-    let candles = chartBody
+    const candles = chartBody
       .selectAll('.candle')
       .data(prices)
       .enter()
       .append('rect')
-      .attr('x', (d, i) => xScale(i) - xBand.bandwidth())
+      .attr('x', (_, i) => xScale(i) - xBand.bandwidth())
       .attr('class', 'candle')
-      .attr('y', (d) => yScale(Math.max(d.Open, d.Close)))
+      .attr('y', (d) => yScale(Math.max(+d.Open, +d.Close)))
       .attr('width', xBand.bandwidth())
       .attr('height', (d) =>
         d.Open === d.Close
           ? 1
-          : yScale(Math.min(d.Open, d.Close)) - yScale(Math.max(d.Open, d.Close))
+          : yScale(Math.min(+d.Open, +d.Close)) - yScale(Math.max(+d.Open, +d.Close))
       )
       .attr('fill', (d) => (d.Open === d.Close ? 'silver' : d.Open > d.Close ? 'red' : 'green'));
 
     // draw high and low
-    let stems = chartBody
+    const stems = chartBody
       .selectAll('g.line')
       .data(prices)
       .enter()
       .append('line')
       .attr('class', 'stem')
-      .attr('x1', (d, i) => xScale(i) - xBand.bandwidth() / 2)
-      .attr('x2', (d, i) => xScale(i) - xBand.bandwidth() / 2)
-      .attr('y1', (d) => yScale(d.High))
-      .attr('y2', (d) => yScale(d.Low))
+      .attr('x1', (_, i) => xScale(i) - xBand.bandwidth() / 2)
+      .attr('x2', (_, i) => xScale(i) - xBand.bandwidth() / 2)
+      .attr('y1', (d) => yScale(+d.High))
+      .attr('y2', (d) => yScale(+d.Low))
       .attr('stroke', (d) => (d.Open === d.Close ? 'white' : d.Open > d.Close ? 'red' : 'green'));
 
-    svg
+    const defs = svg
       .append('defs')
       .append('clipPath')
       .attr('id', 'clip')
@@ -204,13 +146,12 @@
       .attr('width', w)
       .attr('height', h);
 
-    const extent = [
+    let extent: [[number, number], [number, number]] = [
       [0, 0],
       [w, h],
     ];
 
-    var resizeTimer;
-    var zoom = d3
+    const zoom = d3
       .zoom()
       .scaleExtent([1, 100])
       .translateExtent(extent)
@@ -220,15 +161,11 @@
 
     svg.call(zoom);
 
-    /**
-     * @param event {d3.D3ZoomEvent}
-     */
-    function zoomed(event) {
-      var t = event.transform;
-      let xScaleZ = t.rescaleX(xScale);
-
-      let hideTicksWithoutLabel = function () {
-        d3.selectAll('.xAxis .tick text').each(function (d) {
+    function zoomed(event: d3.D3ZoomEvent<Element, unknown>) {
+      const t = event.transform;
+      const xScaleZ = t.rescaleX(xScale);
+      const hideTicksWithoutLabel = function () {
+        svg.selectAll('.xAxis .tick text').each(function (this: any, d) {
           if (this.innerHTML === '') {
             this.parentNode.style.display = 'none';
           }
@@ -236,9 +173,9 @@
       };
 
       gX.call(
-        d3.axisBottom(xScaleZ).tickFormat((d, e, target) => {
-          if (d >= 0 && d <= dates.length - 1) {
-            d = dates[d];
+        d3.axisBottom(xScaleZ).tickFormat((i) => {
+          if (i >= 0 && i <= dates.length - 1) {
+            const d = dates[i as number];
             let hours = d.getHours();
             let minutes = (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
             let amPM = hours < 13 ? 'am' : 'pm';
@@ -269,59 +206,86 @@
       gX.selectAll('.tick text').call(wrap, xBand.bandwidth());
     }
 
-    /**
-     * @param event {d3.D3ZoomEvent}
-     */
-    function zoomend(event) {
-      var t = event.transform;
-      let xScaleZ = t.rescaleX(xScale);
+    function zoomend(event: d3.D3ZoomEvent<Element, unknown>) {
+      const xScaleZ = event.transform.rescaleX(xScale);
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
-        var xmin = new Date(xDateScale(Math.floor(xScaleZ.domain()[0])));
-        let xmax = new Date(xDateScale(Math.floor(xScaleZ.domain()[1])));
-        let filtered = prices.filter((d) => d.Date >= xmin && d.Date <= xmax);
-        let minP = +d3.min(filtered, (d) => d.Low);
-        let maxP = +d3.max(filtered, (d) => d.High);
-        let buffer = Math.floor((maxP - minP) * 0.1);
+        const xmin = new Date(xDateScale(Math.floor(xScaleZ.domain()[0])));
+        const xmax = new Date(xDateScale(Math.floor(xScaleZ.domain()[1])));
+        const filtered = prices.filter((d) => d.Date >= xmin && d.Date <= xmax);
+        const minP = +d3.min(filtered, (d) => d.Low);
+        const maxP = +d3.max(filtered, (d) => d.High);
+        const buffer = Math.floor((maxP - minP) * 0.1);
 
         yScale.domain([minP - buffer, maxP + buffer]);
         candles
           .transition()
           .duration(800)
-          .attr('y', (d) => yScale(Math.max(d.Open, d.Close)))
+          .attr('y', (d) => yScale(Math.max(+d.Open, +d.Close)))
           .attr('height', (d) =>
             d.Open === d.Close
               ? 1
-              : yScale(Math.min(d.Open, d.Close)) - yScale(Math.max(d.Open, d.Close))
+              : yScale(Math.min(+d.Open, +d.Close)) - yScale(Math.max(+d.Open, +d.Close))
           );
 
         stems
           .transition()
           .duration(800)
-          .attr('y1', (d) => yScale(d.High))
-          .attr('y2', (d) => yScale(d.Low));
+          .attr('y1', (d) => yScale(+d.High))
+          .attr('y2', (d) => yScale(+d.Low));
 
-        gY.transition().duration(800).call(d3.axisLeft().scale(yScale));
+        gY.transition().duration(800).call(d3.axisLeft(yScale));
       }, 500);
     }
+
+    function resize(width: number, height: number) {
+      if (width === prevWidth && height === prevWidth) return;
+      prevWidth = width;
+      prevHeight = height;
+      w = width - margin.left - margin.right;
+      h = height - margin.top - margin.bottom;
+
+      extent = [
+        [0, 0],
+        [w, h],
+      ];
+
+      rect.attr('width', w).attr('height', h);
+
+      defs.attr('width', w).attr('height', h);
+
+      svg
+        .attr('width', w + margin.left + margin.right)
+        .attr('height', h + margin.top + margin.bottom);
+
+      gX.attr('transform', 'translate(0,' + h + ')');
+
+      xScale.range([0, w]);
+      xBand.range([0, w]);
+      yScale.range([h, 0]).nice();
+
+      zoom.translateExtent(extent).extent(extent);
+    }
+
+    resizeFn = resize;
   }
 
-  function wrap(text, width) {
+  function wrap(text: d3.Selection<any, any, any, any>, width: number) {
     text.each(function () {
-      var text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = 1.1, // ems
-        y = text.attr('y'),
-        dy = parseFloat(text.attr('dy')),
-        tspan = text
-          .text(null)
-          .append('tspan')
-          .attr('x', 0)
-          .attr('y', y)
-          .attr('dy', dy + 'em');
+      const text = d3.select(this);
+      const words = text.text().split(/\s+/).reverse();
+      let line = [];
+      let word: string;
+      let lineNumber = 0;
+      let lineHeight = 1.1; // ems
+      let y = text.attr('y');
+      let dy = parseFloat(text.attr('dy'));
+      let tspan = text
+        .text(null)
+        .append('tspan')
+        .attr('x', 0)
+        .attr('y', y)
+        .attr('dy', dy + 'em');
       while ((word = words.pop())) {
         line.push(word);
         tspan.text(line.join(' '));
@@ -340,14 +304,42 @@
     });
   }
 
-  onMount(() => {
+  function tryDraw() {
+    if (destroyed) return;
+    const width = outer.clientWidth;
+    const height = outer.clientHeight;
+
+    if (width <= 0 || height <= 0) {
+      setTimeout(tryDraw, 500);
+      return;
+    }
+
+    prevWidth = width;
+    prevHeight = height;
     drawChart();
+  }
+
+  onMount(() => {
+    tryDraw();
+
+    return () => {
+      destroyed = true;
+      resizeFn = undefined;
+    };
   });
+
+  export function resize() {
+    if (destroyed) return;
+    const width = outer.clientWidth;
+    const height = outer.clientHeight;
+    resizeFn(width, height);
+  }
 </script>
 
+<svelte:window on:resize={resize} />
 
-<div style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+<div bind:this={outer} style="position: relative; overflow: hidden; width: 100%; height: 100%;">
   <div style="position: absolute;">
-    <svg class="text-white" bind:this={container} />
+    <svg class="text-fg-primary" bind:this={element} />
   </div>
 </div>
