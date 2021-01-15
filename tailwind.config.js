@@ -31,7 +31,7 @@ module.exports = {
     theme: {
         colors: {
             ...colors,
-            primary: colors.pink,
+            primary: colors.gray,
             secondary: colors.indigo,
         },
         extend: {},

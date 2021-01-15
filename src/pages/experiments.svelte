@@ -18,10 +18,10 @@
     </button>
   </header>
   <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-4 gap-4">
-    <li class="hover:shadow-lg flex rounded-lg bg-gray-200">
+    <li class="hover:shadow-lg flex rounded-lg bg-primary-200">
       <a
         href="/new"
-        class="hover:border-transparent hover:shadow-xs w-full flex items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-sm font-medium py-4">
+        class="hover:border-transparent hover:shadow-xs w-full flex items-center justify-center rounded-lg border-2 border-dashed border-primary-200 text-sm font-medium py-4">
         New Experiment
       </a>
     </li>
