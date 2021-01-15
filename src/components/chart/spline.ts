@@ -1,4 +1,4 @@
-export type Point2D = {x: number, y: number};
+export type Point2D = { x: number; y: number };
 
 export class Spline {
   private cache?: Readonly<Int16Array>;
@@ -26,7 +26,7 @@ export class Spline {
         points[0].y,
         points[1].x,
         points[1].y,
-        2 // end.
+        2, // end.
       ]));
     }
 
@@ -71,7 +71,7 @@ export class Spline {
 
       cpoints[i] = {
         cp: { x: cpx, y: cpy },
-        cn: { x: cnx, y: cny }
+        cn: { x: cnx, y: cny },
       };
     }
 
@@ -82,15 +82,15 @@ export class Spline {
     cpoints[0] = {
       cn: {
         x: (points[0].x + cpoints[1].cp!.x) / 2,
-        y: (points[0].y + cpoints[1].cp!.y) / 2
-      }
+        y: (points[0].y + cpoints[1].cp!.y) / 2,
+      },
     };
 
     cpoints[pLen - 1] = {
       cp: {
         x: (points[pLen - 1].x + cpoints[pLen - 2].cn!.x) / 2,
-        y: (points[pLen - 1].y + cpoints[pLen - 2].cn!.y) / 2
-      }
+        y: (points[pLen - 1].y + cpoints[pLen - 2].cn!.y) / 2,
+      },
     };
 
     // 10 = 9 for the first and curve and 1 for the end (`2`).
@@ -129,13 +129,7 @@ export class Spline {
     return (this.cache = path);
   }
 
-  draw(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    scale = 1,
-    lineWidth = 3,
-  ) {
+  draw(ctx: CanvasRenderingContext2D, x: number, y: number, scale = 1, lineWidth = 3) {
     const path = this.getPath();
     ctx.strokeStyle = '#f00';
     ctx.lineWidth = lineWidth;
@@ -170,7 +164,7 @@ export class Spline {
         case 2:
           break loop;
         default:
-          throw new Error("Invalid Path.");
+          throw new Error('Invalid Path.');
       }
     }
     ctx.stroke();
