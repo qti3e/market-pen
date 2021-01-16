@@ -2940,6 +2940,11 @@ unquote@~1.1.1:
   resolved "https://registry.yarnpkg.com/unquote/-/unquote-1.1.1.tgz#8fded7324ec6e88a0ff8b905e7c098cdc086d544"
   integrity sha1-j97XMk7G6IoP+LkF58CYzcCG1UQ=
 
+uplot@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/uplot/-/uplot-1.6.0.tgz#c91317d4defcf0406c9fb1cbbfcabc2dcaa78230"
+  integrity sha512-Xv25lGDHB5MdUwVwO8MDbhzyCrg6bgfiQwBBzLF9xhwyQStzTLzQlQarmYUkuzEjrHMRkH2vvLnK1XvjiNeDbw==
+
 util-deprecate@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"

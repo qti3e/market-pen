@@ -32,7 +32,7 @@ module.exports = {
         colors: {
             ...colors,
             primary: colors.gray,
-            secondary: colors.indigo,
+            secondary: colors.blue,
             fg: {
                 primary: colors.white,
                 secondary: colors.white
