@@ -13,7 +13,8 @@ export class Ring<T> {
    * @param capacity The size of the buffer.
    */
   constructor(readonly capacity: number) {
-    if (typeof capacity !== 'number' || capacity <= 0 || !Number.isFinite(capacity)) throw new Error('Invalid capacity.');
+    if (typeof capacity !== 'number' || capacity <= 0 || !Number.isFinite(capacity))
+      throw new Error('Invalid capacity.');
     this.buffer = Array(capacity).fill(NOT_SET);
   }
 
@@ -40,8 +41,7 @@ export class Ring<T> {
   dequeue(): T | undefined {
     const rIndex = this.rIndex;
     const data = this.buffer[rIndex];
-    if (data === NOT_SET)
-      return undefined;
+    if (data === NOT_SET) return undefined;
     this.buffer[rIndex] = NOT_SET;
     this.rIndex = (rIndex + 1) % this.capacity;
     return data;

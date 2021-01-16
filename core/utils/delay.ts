@@ -6,7 +6,8 @@ export class Delay<T> {
   private cursor = 0;
 
   constructor(readonly capacity: number) {
-    if (typeof capacity !== 'number' || capacity <= 0 || !Number.isFinite(capacity)) throw new Error('Invalid capacity.');
+    if (typeof capacity !== 'number' || capacity <= 0 || !Number.isFinite(capacity))
+      throw new Error('Invalid capacity.');
     this.buffer = Array(capacity).fill(undefined);
   }
 

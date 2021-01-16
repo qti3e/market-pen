@@ -7,14 +7,16 @@
     "dev": "rollup -c -w",
     "start": "sirv public -p 3000 --single",
     "validate": "svelte-check",
-    "fmt": "prettier --write src"
+    "fmt": "prettier --write src core"
   },
   "devDependencies": {
+    "@types/he": "^1.1.1",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
     "@types/d3": "^6.2.0",
+    "@types/acorn": "^4.0.3",
     "autoprefixer": "^10.2.0",
     "postcss": "^8.2.2",
     "postcss-import": "^14",
@@ -37,7 +39,9 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
+    "acorn": "^5.5.0",
     "d3": "^6.3.1",
+    "he": "^1.2.0",
     "monaco-editor": "^0.21.2",
     "sirv-cli": "^1.0.0",
     "uplot": "^1.6.0"
