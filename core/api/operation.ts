@@ -1,12 +1,13 @@
 import * as indicators from '../indicators';
 import { assert } from '../util';
 import { DataPoint } from '../indicators/interface';
+import { ComputationNode, ExecutionContext } from './nodes';
 
 export type Numeric = number | Operation;
 
-export abstract class Operation {
+export abstract class Operation extends ComputationNode {
   protected _mathOp(values: Numeric[], fn: (...args: number[]) => number) {
-    return new MathOperation([this, ...values], fn);
+    return new MathOperation([this, ...values.map(toOperation)], fn);
   }
 
   /**
@@ -57,7 +58,7 @@ export abstract class Operation {
   }
 
   /**
-   * Returns an implementation-dependent approximation to the cube root of number.
+   * Returns an implementation-dependent (browser wise) approximation to the cube root of number.
    */
   cbrt(): Operation {
     return this._mathOp([], Math.cbrt);
@@ -403,35 +404,55 @@ export abstract class Operation {
 }
 
 export class Candle extends Operation {
-  readonly open: Operation = new CandlePick(this, 'open');
-  readonly high: Operation = new CandlePick(this, 'high');
-  readonly low: Operation = new CandlePick(this, 'low');
-  readonly close: Operation = new CandlePick(this, 'close');
-  readonly volume: Operation = new CandlePick(this, 'volume');
+  readonly open = new CandlePick('open');
+  readonly high = new CandlePick('high');
+  readonly low = new CandlePick('low');
+  readonly close = new CandlePick('close');
+  readonly volume = new CandlePick('volume');
 
   protected _mathOp(values: Numeric[], fn: (...args: number[]) => number) {
     // When doing math on candlesticks use the closing price by default.
-    return new MathOperation([this.close, ...values], fn);
+    return new MathOperation([this.close, ...values.map(toOperation)], fn);
   }
 
   get ta(): CandleStickIndicators {
     return new CandleStickIndicators(this);
   }
+
+  predecessors() {
+    return [];
+  }
+
+  next(ctx: ExecutionContext) {
+    this._data = ctx.$;
+  }
 }
 
-/**
- * @internal
- */
 export class CandlePick<T extends keyof DataPoint> extends Operation {
-  constructor(readonly candle: Candle, readonly key: T) {
+  constructor(readonly key: T) {
     super();
+  }
+
+  predecessors() {
+    return [];
+  }
+
+  next(ctx: ExecutionContext) {
+    this._data = ctx.$[this.key];
   }
 }
 
 export class Primitive extends Operation {
-  constructor(readonly data: number) {
+  constructor(data: number) {
     super();
+    this._data = data;
   }
+
+  predecessors() {
+    return [];
+  }
+
+  next() {}
 }
 
 /**
@@ -439,10 +460,19 @@ export class Primitive extends Operation {
  */
 export class MathOperation extends Operation {
   constructor(
-    readonly children: ReadonlyArray<Numeric>,
+    readonly operands: ReadonlyArray<Operation>,
     readonly fn: (...numbers: number[]) => number
   ) {
     super();
+    // TODO(qti3e) If all the operands are primitives, perform the operation.
+  }
+
+  predecessors() {
+    return this.operands.slice(0);
+  }
+
+  next() {
+    this._data = this.fn(...this.operands.map((node) => node._data));
   }
 
   static add(...numbers: number[]) {
@@ -534,6 +564,14 @@ export class IndicatorOperation extends Operation {
   constructor(readonly source: Operation, readonly indicator: indicators.Indicator) {
     super();
   }
+
+  predecessors() {
+    return [this.source];
+  }
+
+  next() {
+    this.source._data = this.indicator.next(this.source._data);
+  }
 }
 
 export class NumericIndicators {
@@ -591,4 +629,9 @@ export class CandleStickIndicators extends NumericIndicators {
   range(): IndicatorOperation {
     return new IndicatorOperation(this.source, new indicators.Range());
   }
+}
+
+function toOperation(n: Numeric) {
+  if (typeof n === 'number') return new Primitive(n);
+  return n;
 }

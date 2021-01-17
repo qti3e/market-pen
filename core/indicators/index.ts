@@ -1,3 +1,4 @@
 export * from './interface';
-export { TrueRange } from './true_range';
+export { Range } from './range';
 export { SimpleMovingAverage } from './simple_moving_average';
+export { TrueRange } from './true_range';
