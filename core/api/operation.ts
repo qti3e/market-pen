@@ -1,39 +1,44 @@
 import * as indicators from '../indicators';
 import { assert } from '../util';
+import { DataPoint } from '../indicators/interface';
 
 export type Numeric = number | Operation;
 
 export abstract class Operation {
+  protected _mathOp(values: Numeric[], fn: (...args: number[]) => number) {
+    return new MathOperation([this, ...values], fn);
+  }
+
   /**
    * Add multiple numbers to the result of this value and return the new value.
-   * @param other Primitive numbers or computational units to add.
+   * @param values Primitive numbers or computational units to add.
    */
-  add(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], MathOperation.add);
+  add(...values: Numeric[]): Operation {
+    return this._mathOp(values, MathOperation.add);
   }
 
   /**
    * Subtract the given numbers from this node.
-   * @param other Other numbers.
+   * @param values Other numbers.
    */
-  sub(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], MathOperation.sub);
+  sub(...values: Numeric[]): Operation {
+    return this._mathOp(values, MathOperation.sub);
   }
 
   /**
    * Multiply this and other numbers together.
-   * @param other Other numbers.
+   * @param values Other numbers.
    */
-  mul(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], MathOperation.mul);
+  mul(...values: Numeric[]): Operation {
+    return this._mathOp(values, MathOperation.mul);
   }
 
   /**
    * Divide this by others.
-   * @param other Other numbers.
+   * @param values Other numbers.
    */
-  div(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], MathOperation.div);
+  div(...values: Numeric[]): Operation {
+    return this._mathOp(values, MathOperation.div);
   }
 
   /**
@@ -41,70 +46,70 @@ export abstract class Operation {
    * @param other The power.
    */
   pow(other: Numeric): Operation {
-    return new MathOperation([this, other], Math.pow);
+    return this._mathOp([other], Math.pow);
   }
 
   /**
    * Negate the number.
    */
   neg(): Operation {
-    return new MathOperation([this], MathOperation.neg);
+    return this._mathOp([], MathOperation.neg);
   }
 
   /**
    * Returns an implementation-dependent approximation to the cube root of number.
    */
   cbrt(): Operation {
-    return new MathOperation([this], Math.cbrt);
+    return this._mathOp([], Math.cbrt);
   }
 
   /**
    * Returns the square root of a number.
    */
   sqrt(): Operation {
-    return new MathOperation([this], Math.sqrt);
+    return this._mathOp([], Math.sqrt);
   }
 
   /**
    * Rise the absolute value of the given number.
    */
   abs(): Operation {
-    return new MathOperation([this], Math.abs);
+    return this._mathOp([], Math.abs);
   }
 
   /**
    * Return the floor of the current number.
    */
   floor(): Operation {
-    return new MathOperation([this], Math.floor);
+    return this._mathOp([], Math.floor);
   }
 
   /**
    * Returns the smallest integer greater than or equal to its numeric argument.
    */
   ceil(): Operation {
-    return new MathOperation([this], Math.ceil);
+    return this._mathOp([], Math.ceil);
   }
 
   /**
    * Round the number and return the result.
    */
   round(): Operation {
-    return new MathOperation([this], Math.round);
+    return this._mathOp([], Math.round);
   }
 
   /**
    * Remove the decimal points from the number.
    */
   trunc(): Operation {
-    return new MathOperation([this], Math.trunc);
+    return this._mathOp([], Math.trunc);
   }
 
   /**
    * Return `Floor(x / other) * other`.
    */
   step(other: Numeric): Operation {
-    return new MathOperation([this, other], MathOperation.step);
+    return this._mathOp([other], MathOperation.step);
   }
 
   /**
@@ -116,7 +121,7 @@ export abstract class Operation {
    * ```
    */
   sign(): Operation {
-    return new MathOperation([this], Math.sign);
+    return this._mathOp([], Math.sign);
   }
 
   /**
@@ -124,7 +129,7 @@ export abstract class Operation {
    * @param other Other numbers.
    */
   min(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], Math.min);
+    return this._mathOp(other, Math.min);
   }
 
   /**
@@ -132,119 +137,119 @@ export abstract class Operation {
    * @param other Other numbers.
    */
   max(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], Math.max);
+    return this._mathOp(other, Math.max);
   }
 
   /**
    * Returns the sine of the current number.
    */
   sin(): Operation {
-    return new MathOperation([this], Math.sin);
+    return this._mathOp([], Math.sin);
   }
 
   /**
    * Returns the cosine of the current number.
    */
   cos(): Operation {
-    return new MathOperation([this], Math.cos);
+    return this._mathOp([], Math.cos);
   }
 
   /**
    * Returns the tangent of the current number.
    */
   tan(): Operation {
-    return new MathOperation([this], Math.tan);
+    return this._mathOp([], Math.tan);
   }
 
   /**
    * Returns the arcsine of the current number.
    */
   asin(): Operation {
-    return new MathOperation([this], Math.asin);
+    return this._mathOp([], Math.asin);
   }
 
   /**
    * Returns the arc cosine of the current number.
    */
   acos(): Operation {
-    return new MathOperation([this], Math.acos);
+    return this._mathOp([], Math.acos);
   }
 
   /**
    * Returns the arctangent of the current number.
    */
   atan(): Operation {
-    return new MathOperation([this], Math.atan);
+    return this._mathOp([], Math.atan);
   }
 
   /**
    * Returns the hyperbolic cosine of the current number.
    */
   cosh(): Operation {
-    return new MathOperation([this], Math.cosh);
+    return this._mathOp([], Math.cosh);
   }
 
   /**
    * Returns the hyperbolic sine of the current number.
    */
   sinh(): Operation {
-    return new MathOperation([this], Math.sinh);
+    return this._mathOp([], Math.sinh);
   }
 
   /**
    * Returns the hyperbolic tangent of the current number.
    */
   tanh(): Operation {
-    return new MathOperation([this], Math.tanh);
+    return this._mathOp([], Math.tanh);
   }
 
   /**
    * Returns the inverse hyperbolic sine of the number.
    */
   asinh(): Operation {
-    return new MathOperation([this], Math.asinh);
+    return this._mathOp([], Math.asinh);
   }
 
   /**
    * Returns the inverse hyperbolic cosine of the number.
    */
   acosh(): Operation {
-    return new MathOperation([this], Math.acosh);
+    return this._mathOp([], Math.acosh);
   }
 
   /**
    * Returns the inverse hyperbolic tangent of a number.
    */
   atanh(): Operation {
-    return new MathOperation([this], Math.atanh);
+    return this._mathOp([], Math.atanh);
   }
 
   /**
    * Returns e (the base of natural logarithms) raised to this number's power.
    */
   exp(): Operation {
-    return new MathOperation([this], Math.exp);
+    return this._mathOp([], Math.exp);
   }
 
   /**
    * Returns the natural logarithm (base e) of the current number.
    */
   log(): Operation {
-    return new MathOperation([this], Math.log);
+    return this._mathOp([], Math.log);
   }
 
   /**
    * Returns the base 2 logarithm of the current number.
    */
   log2(): Operation {
-    return new MathOperation([this], Math.log2);
+    return this._mathOp([], Math.log2);
   }
 
   /**
    * Returns the base 10 logarithm of the current number.
    */
   log10(): Operation {
-    return new MathOperation([this], Math.log10);
+    return this._mathOp([], Math.log10);
   }
 
   /**
@@ -256,14 +261,14 @@ export abstract class Operation {
    * @param values Values to compute the square root for.
    */
   hypot(...values: number[]): Operation {
-    return new MathOperation([this, ...values], Math.hypot);
+    return this._mathOp(values, Math.hypot);
   }
 
   /**
    * Returns the natural logarithm of 1 + x.
    */
   log1p(): Operation {
-    return new MathOperation([this], Math.log1p);
+    return this._mathOp([], Math.log1p);
   }
 
   /**
@@ -272,14 +277,14 @@ export abstract class Operation {
    * is the base of the natural logarithms).
    */
   expm1(): Operation {
-    return new MathOperation([this], Math.expm1);
+    return this._mathOp([], Math.expm1);
   }
 
   /**
    * Returns the result of 32-bit multiplication this number with another number.
    */
   imul(other: Numeric): Operation {
-    return new MathOperation([this, other], Math.imul);
+    return this._mathOp([other], Math.imul);
   }
 
   /**
@@ -287,7 +292,7 @@ export abstract class Operation {
    * is 10, the lower bound is 50, and the upper bound is 100, then 50 is returned.
    */
   constrain(min: Numeric, max: Numeric): Operation {
-    return new MathOperation([this, min, max], MathOperation.constrain);
+    return this._mathOp([min, max], MathOperation.constrain);
   }
 
   /**
@@ -297,7 +302,7 @@ export abstract class Operation {
    * @param falseValue The value to return if the condition evaluates to false.
    */
   iif(trueValue: Numeric, falseValue: Numeric): Operation {
-    return new MathOperation([this, trueValue, falseValue], MathOperation.iif);
+    return this._mathOp([trueValue, falseValue], MathOperation.iif);
   }
 
   /**
@@ -306,63 +311,63 @@ export abstract class Operation {
    */
   switchCase(...values: Numeric[]): Operation {
     assert(values.length % 2 === 0 && values.length > 0, 'Wrong number of arguments.');
-    return new MathOperation([this, ...values], MathOperation.switchCase);
+    return this._mathOp(values, MathOperation.switchCase);
   }
 
   /**
    * Returns `1` if the current number is less than `other`, otherwise returns `0`.
    */
   lt(other: Numeric): Operation {
-    return new MathOperation([this, other], MathOperation.lt);
+    return this._mathOp([other], MathOperation.lt);
   }
 
   /**
    * Returns `1` if the current number is less than or equal to `other`, otherwise returns `0`.
    */
   lte(other: Numeric): Operation {
-    return new MathOperation([this, other], MathOperation.lte);
+    return this._mathOp([other], MathOperation.lte);
   }
 
   /**
    * Returns `1` if the current number is greater than `other`, otherwise returns `0`.
    */
   gt(other: Numeric): Operation {
-    return new MathOperation([this, other], MathOperation.gt);
+    return this._mathOp([other], MathOperation.gt);
   }
 
   /**
    * Returns `1` if the current number is greater than or equal to `other`, otherwise returns `0`.
    */
   gte(other: Numeric): Operation {
-    return new MathOperation([this, other], MathOperation.gte);
+    return this._mathOp([other], MathOperation.gte);
   }
 
   /**
    * Returns `1` if the current number is equal to `other`, otherwise returns `0`.
    */
   eq(other: Numeric): Operation {
-    return new MathOperation([this, other], MathOperation.eq);
+    return this._mathOp([other], MathOperation.eq);
   }
 
   /**
    * Returns `1` if the current number is positive (x > 0), otherwise returns `0`.
    */
   isPos(other: Numeric): Operation {
-    return new MathOperation([this, 0], MathOperation.gt);
+    return this._mathOp([0], MathOperation.gt);
   }
 
   /**
    * Returns `1` if the current number is negative (x < 0), otherwise returns `0`.
    */
   isNeg(other: Numeric): Operation {
-    return new MathOperation([this, 0], MathOperation.lt);
+    return this._mathOp([0], MathOperation.lt);
   }
 
   /**
    * Returns `1` if the current number is equal to `0`, otherwise returns `0`.
    */
   isZero(other: Numeric): Operation {
-    return new MathOperation([this, 0], MathOperation.eq);
+    return this._mathOp([0], MathOperation.eq);
   }
 
   /**
@@ -370,7 +375,7 @@ export abstract class Operation {
    * otherwise `1` is returned.
    */
   not(): Operation {
-    return new MathOperation([this], MathOperation.not);
+    return this._mathOp([], MathOperation.not);
   }
 
   /**
@@ -378,7 +383,7 @@ export abstract class Operation {
    * @param other Other numbers.
    */
   and(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], MathOperation.and);
+    return this._mathOp(other, MathOperation.and);
   }
 
   /**
@@ -386,7 +391,7 @@ export abstract class Operation {
    * @param other Other numbers.
    */
   or(...other: Numeric[]): Operation {
-    return new MathOperation([this, ...other], MathOperation.or);
+    return this._mathOp(other, MathOperation.or);
   }
 
   /**
@@ -398,8 +403,28 @@ export abstract class Operation {
 }
 
 export class Candle extends Operation {
+  readonly open: Operation = new CandlePick(this, 'open');
+  readonly high: Operation = new CandlePick(this, 'high');
+  readonly low: Operation = new CandlePick(this, 'low');
+  readonly close: Operation = new CandlePick(this, 'close');
+  readonly volume: Operation = new CandlePick(this, 'volume');
+
+  protected _mathOp(values: Numeric[], fn: (...args: number[]) => number) {
+    // When doing math on candlesticks use the closing price by default.
+    return new MathOperation([this.close, ...values], fn);
+  }
+
   get ta(): CandleStickIndicators {
     return new CandleStickIndicators(this);
+  }
+}
+
+/**
+ * @internal
+ */
+export class CandlePick<T extends keyof DataPoint> extends Operation {
+  constructor(readonly candle: Candle, readonly key: T) {
+    super();
   }
 }
 
@@ -409,6 +434,9 @@ export class Primitive extends Operation {
   }
 }
 
+/**
+ * @internal
+ */
 export class MathOperation extends Operation {
   constructor(
     readonly children: ReadonlyArray<Numeric>,
@@ -509,7 +537,7 @@ export class IndicatorOperation extends Operation {
 }
 
 export class NumericIndicators {
-  constructor(private readonly source: Operation) {}
+  constructor(protected readonly source: Operation, protected readonly numericSource = source) {}
 
   /**
    * The range of a day's trading is simply _high_ - _low_.
@@ -545,11 +573,22 @@ export class NumericIndicators {
    * @param period number of periods (integer greater than 0)
    */
   simple_moving_average(period: number): IndicatorOperation {
-    return new IndicatorOperation(this.source, new indicators.SimpleMovingAverage(period));
+    return new IndicatorOperation(this.numericSource, new indicators.SimpleMovingAverage(period));
   }
 }
 
 /**
- * Indicators that require the entire data for a candle stick.
+ * Indicators that require the entire data of a candle stick.
  */
-export class CandleStickIndicators extends NumericIndicators {}
+export class CandleStickIndicators extends NumericIndicators {
+  constructor(source: Candle) {
+    super(source, source.close);
+  }
+
+  /**
+   * The range of a day's trading which is simply _high_ - _low_.
+   */
+  range(): IndicatorOperation {
+    return new IndicatorOperation(this.source, new indicators.Range());
+  }
+}
