@@ -6,9 +6,9 @@ export interface ExecutionContext {
   $: DataPoint;
 }
 
-export abstract class ComputationNode {
+export abstract class ComputationNode<T = any> {
   /** @internal */
-  _data: any = NOT_SET;
+  _data: T | typeof NOT_SET = NOT_SET;
 
   /**
    * Return the list of nodes that this node is depended on.
@@ -27,25 +27,23 @@ export abstract class ComputationNode {
   /**
    * Return the last computed data for this node.
    */
-  data() {
+  data(): T {
     if (this._data === NOT_SET) throw new Error(`You're not allowed to use the data yet.`);
     return this._data;
   }
 
-  /** @internal */
-  valueOf() {
-    const err = 'Unexpected use of computation-node.';
-    const hint = `Use '.data()' to obtain the latest value of the node.`;
-    throw new Error(err + ' ' + hint);
+  valueOf(): T {
+    if (this._data === NOT_SET) throw new Error(`You're not allowed to use the data yet.`);
+    return this._data;
   }
 }
 
-export class WatchChangeNode extends ComputationNode {
-  private prev = NOT_SET;
+export class WatchChangeNode<T> extends ComputationNode<never> {
+  private prev: T | typeof NOT_SET = NOT_SET;
 
   constructor(
-    readonly source: ComputationNode,
-    readonly cb: (value: any, isFinal: boolean) => void
+    readonly source: ComputationNode<T>,
+    readonly cb: (value: T, isFinal: boolean) => void
   ) {
     super();
   }
@@ -59,14 +57,15 @@ export class WatchChangeNode extends ComputationNode {
     const current = this.source._data;
     if (current === prev) return;
     this.prev = current;
-    this.cb(current, true);
+    if (current === null) return;
+    this.cb(current as T, true);
   }
 }
 
-export class WatchNode extends ComputationNode {
+export class WatchNode<T> extends ComputationNode<never> {
   constructor(
-    readonly source: ComputationNode,
-    readonly cb: (value: any, isFinal: boolean) => void
+    readonly source: ComputationNode<T>,
+    readonly cb: (value: T, isFinal: boolean) => void
   ) {
     super();
   }
@@ -76,6 +75,8 @@ export class WatchNode extends ComputationNode {
   }
 
   next() {
-    this.cb(this.source._data, true);
+    const data = this.source._data as T;
+    if (data === null) return;
+    this.cb(data, true);
   }
 }

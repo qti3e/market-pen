@@ -7,7 +7,7 @@ export type Numeric = number | Operation;
 
 export abstract class Operation extends ComputationNode {
   protected _mathOp(values: Numeric[], fn: (...args: number[]) => number) {
-    return new MathOperation([this, ...values.map(toOperation)], fn);
+    return new MathOperation([this, ...values.map(toMathOperand)], fn);
   }
 
   /**
@@ -36,6 +36,13 @@ export abstract class Operation extends ComputationNode {
 
   /**
    * Divide this by others.
+   *
+   * # Example
+   * ```js
+   * const SMA20 = $.ta.sma(20);
+   * const High20 = $.ta.high(20);
+   * const HighAvgRation = High20.div(SMA20);
+   * ```
    * @param values Other numbers.
    */
   div(...values: Numeric[]): Operation {
@@ -412,7 +419,7 @@ export class Candle extends Operation {
 
   protected _mathOp(values: Numeric[], fn: (...args: number[]) => number) {
     // When doing math on candlesticks use the closing price by default.
-    return new MathOperation([this.close, ...values.map(toOperation)], fn);
+    return new MathOperation([this.close, ...values.map(toMathOperand)], fn);
   }
 
   get ta(): CandleStickIndicators {
@@ -472,7 +479,18 @@ export class MathOperation extends Operation {
   }
 
   next() {
-    this._data = this.fn(...this.operands.map((node) => node._data));
+    const len = this.operands.length;
+    const operands: number[] = Array(len);
+    for (let i = 0; i < len; ++i) {
+      const data = this.operands[i]._data;
+      // Possibly a delayed node (e.g SMA).
+      if (data === null) {
+        this._data = null;
+        return;
+      }
+      operands.push(data);
+    }
+    this._data = this.fn(...operands);
   }
 
   static add(...numbers: number[]) {
@@ -570,7 +588,8 @@ export class IndicatorOperation extends Operation {
   }
 
   next() {
-    this.source._data = this.indicator.next(this.source._data);
+    const data = this.source._data;
+    this.source._data = data === null ? null : this.indicator.next(data);
   }
 }
 
@@ -631,7 +650,8 @@ export class CandleStickIndicators extends NumericIndicators {
   }
 }
 
-function toOperation(n: Numeric) {
+function toMathOperand(n: Numeric) {
   if (typeof n === 'number') return new Primitive(n);
+  if (n instanceof Candle) return n.close;
   return n;
 }
