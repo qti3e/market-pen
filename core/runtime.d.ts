@@ -4,7 +4,7 @@ import { ComputationNode } from './api/nodes';
 
 // Declaration file for global variables in the market-watch runtime.
 
-export type WatchCB<T> = (data: Exclude<T, null>, isFinal: boolean) => void;
+type WatchCB<T> = (data: Exclude<T, null>, isFinal: boolean) => void;
 
 interface $ extends Candle {
   /**
@@ -54,11 +54,54 @@ declare const $: $;
 /**
  * Register a callback that gets called whenever the value of node changes.
  */
-declare function watch<T>(node: ComputationNode<T>, cb: WatchCB<T>): void;
+declare function watch<T>(node: ComputationNode<T>, cb: WatchCB<T>, skipFirst?: boolean): void;
 
 declare namespace watch {
   /**
    * Always call the callback, even if the value is unchanged.
    */
   export function always<T>(node: ComputationNode<T>, cb: WatchCB<T>): void;
+}
+
+/**
+ * Any type that can be used as a data source for chart.
+ */
+type PlotDataSource =
+  | ComputationNode<number | null>
+  | ((candle: DataPoint, isFinal: boolean) => number | null);
+
+/**
+ * A batch of series.
+ */
+type PlotDataSourceWithLegend = [string, PlotDataSource];
+
+type PlotType = 'line' | 'bar' | 'step' | 'point';
+
+/**
+ * Plot the given data on the main OHLCV (candlestick) chart.
+ * @param legend Legend to display for the data.
+ * @param source The data source to be used for y values.
+ * @param kind Type of the plot.
+ */
+declare function plot(legend: string, source: PlotDataSource, kind?: PlotType): void;
+
+/**
+ * Plot the given data on the main OHLCV (candlestick) chart.
+ * @param sources Legend to display for the data.
+ * @param kind Type of the plot.
+ */
+declare function plot(sources: PlotDataSourceWithLegend[], kind?: PlotType): void;
+
+declare namespace plot {
+  interface Chart {
+    plot(legend: string, source: PlotDataSource, kind?: PlotType): Chart;
+    plot(sources: PlotDataSourceWithLegend[], kind?: PlotType): Chart;
+  }
+
+  /**
+   * Create a new chart separate from the main OHLCV.
+   * @param title Name of the chart.
+   * @param domain Range of the values for y-axis.
+   */
+  function chart(title: string, domain?: [number, number]): Chart;
 }
