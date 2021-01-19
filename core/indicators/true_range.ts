@@ -1,21 +1,21 @@
 import { Indicator, DataPoint } from './interface';
 
-export class TrueRange implements Indicator {
-  private prev_close: number | number = null;
+export class TrueRange implements Indicator<DataPoint | number, number> {
+  private prevClose: number | null = null;
 
   next(input: DataPoint | number): number {
-    const prev_close = this.prev_close;
+    const prev = this.prevClose;
     if (typeof input === 'number') {
-      this.prev_close = input;
-      return prev_close === null ? 0.0 : Math.abs(input - prev_close);
-    } else if (prev_close === null) {
-      this.prev_close = input.close;
+      this.prevClose = input;
+      return prev === null ? 0.0 : Math.abs(input - prev);
+    } else if (prev === null) {
+      this.prevClose = input.close;
       return input.high - input.low;
     } else {
-      this.prev_close = input.close;
+      this.prevClose = input.close;
       const dist1 = input.high - input.low;
-      const dist2 = Math.abs(input.high - prev_close);
-      const dist3 = Math.abs(input.low - prev_close);
+      const dist2 = Math.abs(input.high - prev);
+      const dist3 = Math.abs(input.low - prev);
       return Math.max(dist1, dist2, dist3);
     }
   }
