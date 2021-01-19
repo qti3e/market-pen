@@ -10,13 +10,12 @@
     "fmt": "prettier --write src core"
   },
   "devDependencies": {
-    "@types/he": "^1.1.1",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
-    "@types/d3": "^6.2.0",
     "@types/acorn": "^4.0.3",
+    "@types/he": "^1.1.1",
     "autoprefixer": "^10.2.0",
     "postcss": "^8.2.2",
     "postcss-import": "^14",
