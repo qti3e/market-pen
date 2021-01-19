@@ -6,15 +6,15 @@ export interface ExecutionContext {
   $: DataPoint;
 }
 
-export abstract class ComputationNode<T = any> {
+export abstract class ComputationNode<O = any, I = unknown> {
   /** @internal */
-  _data: T | typeof NOT_SET = NOT_SET;
+  _data: O | typeof NOT_SET = NOT_SET;
 
   /**
    * Return the list of nodes that this node is depended on.
    * @internal
    */
-  abstract predecessors(): ComputationNode[];
+  abstract predecessors(): ComputationNode<I>[];
 
   /**
    * Compute the next data and set it to `this._data`.
@@ -27,12 +27,12 @@ export abstract class ComputationNode<T = any> {
   /**
    * Return the last computed data for this node.
    */
-  data(): T {
+  data(): O {
     if (this._data === NOT_SET) throw new Error(`You're not allowed to use the data yet.`);
     return this._data;
   }
 
-  valueOf(): T {
+  valueOf(): O {
     if (this._data === NOT_SET) throw new Error(`You're not allowed to use the data yet.`);
     return this._data;
   }
