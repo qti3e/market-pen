@@ -617,8 +617,9 @@ export class IndicatorOperation<O, I extends DataPoint | number> extends Operati
   }
 
   toNumeric() {
-    // TODO(qti3e)
-    return this as any;
+    if (this.indicator.isNumeric) return (this as any) as NumericOperation;
+    if (this.indicator.toNum) return new MathOperation([this], (o) => this.indicator.toNum(o));
+    throw new Error('Operation not supported.');
   }
 }
 

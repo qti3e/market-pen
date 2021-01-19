@@ -2,6 +2,7 @@ import { Indicator, DataPoint } from './interface';
 import { Delay } from '../utils/delay';
 
 export class SimpleMovingAverage implements Indicator<DataPoint | number, number | null> {
+  readonly isNumeric = true;
   private readonly buffer: Delay<number>;
   private sum = 0;
 

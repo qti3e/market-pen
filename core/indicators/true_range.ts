@@ -1,6 +1,7 @@
 import { Indicator, DataPoint } from './interface';
 
 export class TrueRange implements Indicator<DataPoint | number, number> {
+  readonly isNumeric = true;
   private prevClose: number | null = null;
 
   next(input: DataPoint | number): number {
