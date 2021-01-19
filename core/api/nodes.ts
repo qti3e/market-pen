@@ -38,7 +38,7 @@ export abstract class ComputationNode<O = any, I = unknown> {
   }
 }
 
-export class WatchChangeNode<T> extends ComputationNode<never> {
+export class WatchChangeNode<T> extends ComputationNode<never, T> {
   private prev: T | typeof NOT_SET = NOT_SET;
 
   constructor(
@@ -62,7 +62,7 @@ export class WatchChangeNode<T> extends ComputationNode<never> {
   }
 }
 
-export class WatchNode<T> extends ComputationNode<never> {
+export class WatchNode<T> extends ComputationNode<never, T> {
   constructor(
     readonly source: ComputationNode<T>,
     readonly cb: (value: T, isFinal: boolean) => void

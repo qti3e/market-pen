@@ -2,7 +2,7 @@ import { ComputationNode } from './nodes';
 import { toposort } from '../util';
 
 export class Compiler {
-  private readonly nodes = new Set<ComputationNode>();
+  private readonly nodes = new Set<ComputationNode<never>>();
 
   /**
    * Pin a computation node, so we include the node in the execution plan.
@@ -11,7 +11,7 @@ export class Compiler {
    *
    * @param op The node to pin.
    */
-  pin(node: ComputationNode) {
+  pin(node: ComputationNode<never>) {
     this.nodes.add(node);
   }
 
@@ -34,7 +34,7 @@ export class Compiler {
       predecessors.forEach((u) => {
         // Top-level nodes must be final, they cannot be part of another computation chain.
         // e.g: watch, plot.
-        if (this.nodes.has(u))
+        if (this.nodes.has(u as any))
           throw new Error('Broken State: Top-level nodes are not supposed to have successors.');
         // Don't insert the direct dependencies of top-level nodes, we want to put them all
         // together at the end of the plan.

@@ -422,11 +422,6 @@ export class Candle extends Operation<DataPoint, never> {
   readonly close = new CandlePick('close');
   readonly volume = new CandlePick('volume');
 
-  protected _mathOp(values: MathOperand[], fn: (...args: number[]) => number) {
-    // When doing math on candlesticks use the closing price by default.
-    return new MathOperation([this.close, ...values.map(fromMathOperand)], fn);
-  }
-
   /**
    * Access point for technical analysis indicators.
    */
