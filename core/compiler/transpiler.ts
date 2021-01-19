@@ -13,7 +13,10 @@
 import type { AbstractToken } from 'acorn';
 import * as acorn from 'acorn/dist/acorn';
 import * as walk from 'acorn/dist/walk';
-import { assert, assertEqual } from './util';
+import { assert, assertEqual } from '../util';
+
+// TODO(qti3e) This file has its own share of problems, we can reuse:
+// https://github.com/qti3e/crossvm/blob/master/src/lib/transpiler.js
 
 function noop() {}
 
@@ -213,6 +216,8 @@ export class Transpiler {
   private originalSources: { [id: number]: SourceFile } = {};
   private transpiledSources: { [id: number]: MappedString } = {};
 
+  constructor(readonly globalVariables: string[]) {}
+
   // Parses javascript code which has been wrapped in an (async) function
   // expression, then returns the function body AST node.
   private parseWrappedSource(source: MappedString) {
@@ -240,7 +245,7 @@ export class Transpiler {
     // Wrap the source in an async function.
     let transpiled: MappedString = new MappedString().concat(
       `(async function __transpiled_top_level_${id}__`,
-      `(__global, __import, $, watch, plot, cross) {\n`,
+      `(__global, __import, ${this.globalVariables.join(', ')}) {\n`,
       original,
       `\n})\n//# sourceURL=__transpiled_source_${id}__`
     );

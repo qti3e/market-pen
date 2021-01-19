@@ -503,7 +503,7 @@ export class MathOperation<I> extends Operation<number, I> {
         this._data = null;
         return;
       }
-      operands.push(data as I);
+      operands[i] = data as I;
     }
     this._data = this.fn(...operands);
   }

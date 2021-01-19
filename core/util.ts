@@ -103,13 +103,14 @@ export function assertEqual(actual: any, expected: any, msg = null) {
  *
  * @param edges The edges of the graph.
  */
-export function toposort<T>(edges: [T, T][]): T[] | null {
+export function toposort<T>(edges: ([T, T] | [T])[]): T[] | null {
   const vertices = new Map<T, { inDegree: number; successors: Set<T> }>();
   const queue: T[] = [];
   const result: T[] = [];
 
   for (let i = 0, n = edges.length, e = edges[0]; i < n; e = edges[++i]) {
     if (!vertices.has(e[0])) vertices.set(e[0], { inDegree: 0, successors: new Set() });
+    if (e.length < 2) continue;
     if (!vertices.has(e[1])) vertices.set(e[1], { inDegree: 0, successors: new Set() });
     vertices.get(e[0])!.successors.add(e[1]);
   }
