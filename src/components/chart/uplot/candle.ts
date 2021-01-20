@@ -147,7 +147,7 @@ export function candlestickPlugin(options: Partial<CandleStickOptions> = {}): Pl
       }
     },
     hooks: {
-      drawClear: drawCandles,
+      drawAxes: drawCandles,
     },
   };
 }

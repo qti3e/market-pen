@@ -13,7 +13,7 @@
 
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import type { Data  } from 'uplot';
+  import type { Data } from 'uplot';
   import uPlot from 'uplot';
 
   // Props:

@@ -3,10 +3,18 @@
   const monaco_promise = import('/monaco/monaco.bundle.js' as any);
   monaco_promise.then((mod) => {
     monaco = mod.default;
+
+    // validation settings
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
+    });
+
     // compiler options
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.ES2016,
       allowNonTsExtensions: true,
+      lib: ['es2019'],
     });
 
     // extra libraries
@@ -21,11 +29,10 @@
       '    static next():string',
       '}',
     ].join('\n');
-    monaco.languages.typescript.javascriptDefaults.setExtraLibs([
-      {
-        content: libSource,
-      },
-    ]);
+
+    const libUri = 'ts:market-lab/lib.d.ts';
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
+    monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
   });
 </script>
 
