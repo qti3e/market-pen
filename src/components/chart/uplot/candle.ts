@@ -7,6 +7,7 @@ export interface CandleStickOptions {
   highSeries: number;
   lowSeries: number;
   closeSeries: number;
+  /** If < 0, the volumes are not rendered. */
   volumeSeries: number;
   gap: number;
   bearishColor: string;
@@ -46,6 +47,7 @@ export function candlestickPlugin(options: Partial<CandleStickOptions> = {}): Pl
     closeSeries,
     volumeSeries,
   } = { ...DEFAULT_OPTIONS, ...options };
+  const plotVolumes = volumeSeries >= 0;
 
   function drawCandles(u: uPlot) {
     u.ctx.save();
@@ -55,7 +57,7 @@ export function candlestickPlugin(options: Partial<CandleStickOptions> = {}): Pl
 
     let [iMin, iMax] = u.series[0].idxs;
 
-    let vol0AsY = u.valToPos(0, 'vol', true);
+    let vol0AsY = plotVolumes ? u.valToPos(0, 'vol', true) : null;
 
     for (let i = iMin; i <= iMax; i++) {
       let xVal = u.scales.x.distr == 2 ? i : u.data[timeSeries][i];
@@ -63,14 +65,14 @@ export function candlestickPlugin(options: Partial<CandleStickOptions> = {}): Pl
       let high = u.data[highSeries][i];
       let low = u.data[lowSeries][i];
       let close = u.data[closeSeries][i];
-      let vol = u.data[volumeSeries][i];
+      let vol = plotVolumes ? u.data[volumeSeries][i] : null;
 
       let timeAsX = u.valToPos(xVal, 'x', true);
       let lowAsY = u.valToPos(low, 'y', true);
       let highAsY = u.valToPos(high, 'y', true);
       let openAsY = u.valToPos(open, 'y', true);
       let closeAsY = u.valToPos(close, 'y', true);
-      let volAsY = u.valToPos(vol, 'vol', true);
+      let volAsY = plotVolumes ? u.valToPos(vol, 'vol', true) : null;
 
       let bodyColor = open > close ? bearishColor : bullishColor;
       let shadowColor = bodyColor;
@@ -111,13 +113,14 @@ export function candlestickPlugin(options: Partial<CandleStickOptions> = {}): Pl
         Math.round(bodyHeight - bodyOutline * 2)
       );
 
-      // volume rect
-      u.ctx.fillRect(
-        Math.round(bodyX),
-        Math.round(volAsY),
-        Math.round(bodyWidth),
-        Math.round(vol0AsY - volAsY)
-      );
+      // Volume rect
+      if (plotVolumes)
+        u.ctx.fillRect(
+          Math.round(bodyX),
+          Math.round(volAsY),
+          Math.round(bodyWidth),
+          Math.round(vol0AsY - volAsY)
+        );
     }
 
     u.ctx.translate(-offset, -offset);
@@ -137,6 +140,7 @@ export function candlestickPlugin(options: Partial<CandleStickOptions> = {}): Pl
       const seriesKey = [openSeries, highSeries, lowSeries, closeSeries, volumeSeries];
       for (let i = 0; i < 5; ++i) {
         const key = seriesKey[i];
+        if (key < 0) continue;
         const series = opts.series[key];
         series.paths = () => null;
         series.points = { show: false };
