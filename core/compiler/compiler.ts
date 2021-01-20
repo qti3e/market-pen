@@ -131,6 +131,11 @@ export async function compile(code: string): Promise<Program> {
   return compiler.compile();
 }
 
+export function formatException(e: any) {
+  if (!transpiler) return new Transpiler([]).formatException(e);
+  return transpiler.formatException(e);
+}
+
 /**
  * Handle module imports, currently not supported my market-watch.
  * @param target Name of the module.
@@ -141,32 +146,5 @@ async function importModule(target: string) {
   //   case "matplotlib": return matplotlib;
   //   case "test_internals": return test_internals;
   // }
-
   throw new TypeError(`Invalid module name: '${target}'`);
 }
-
-async function main() {
-  let program;
-  try {
-    program = await compile(`// Sample Program.
-const sma3 = pin($.ta.simple_moving_average(3));
-const sma2 = pin($.ta.simple_moving_average(2));
-
-$(_ => {
-  console.log('SMA-3: ', sma3.data());
-  console.log('SMA-2: ', sma2.data());
-});
-`);
-  } catch (e) {
-    console.log(transpiler.formatException(e));
-    return;
-  }
-
-  console.log(program);
-  console.log(program.next({ close: 3 } as any));
-  console.log(program.next({ close: 2 } as any));
-  console.log(program.next({ close: 4 } as any));
-  console.log(program.next({ close: 6 } as any));
-}
-
-main();

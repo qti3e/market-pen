@@ -1,9 +1,41 @@
 <script lang="ts">
   import Editor from '../components/monaco/editor.svelte';
   import Chart from '../components/chart/chart.svelte';
+  import { Experiment } from '../../core/experiment';
+  import type { ChartData } from '../../core/experiment';
+  import { onMount } from 'svelte';
 
   let editor: Editor;
   let chart: Chart;
+
+  const data: ChartData = [];
+  for (
+    let i = 0, price = 1000, time = ((Date.now() / 1e3 / 300) | 0) * 300;
+    i < 30;
+    ++i, time += 5 * 60
+  ) {
+    let change = (Math.random() - 0.5) * 60;
+    let open = price + Math.random() * 5;
+    let close = open + change;
+    let high = Math.max(open, close) + Math.random() * 20;
+    let low = Math.min(open, close) - Math.random() * 20;
+    data.push([open, high, low, close, (Math.random() * 240 + 10) | 0]);
+    price += change;
+  }
+
+  const experiment = new Experiment({});
+
+  onMount(async () => {
+    await experiment.setData(data);
+    const layout = await experiment.setSourceCode(`// Demo
+const sma3 = pin($.ta.simple_moving_average(3));
+const sma2 = pin($.ta.simple_moving_average(2));
+$(_ => {
+  console.log('SMA-3: ', sma3.data());
+  console.log('SMA-2: ', sma2.data());
+});`);
+    experiment.execute();
+  });
 </script>
 
 <div class="flex flex-col h-full">

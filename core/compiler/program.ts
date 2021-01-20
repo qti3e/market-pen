@@ -12,7 +12,7 @@ export class Program {
 
   next(data: DataPoint): TickResult {
     const { plan } = this;
-    const series = [];
+    const series = [null, 2];
     const ctx = {
       $: data,
       series,

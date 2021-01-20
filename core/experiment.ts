@@ -12,8 +12,9 @@
  */
 
 import { escape } from 'he';
-import { RPC, WindowRPC } from './rpc';
+import { RPC, WindowRPC, RpcHandlers } from './rpc';
 import { randomString } from './util';
+import { Layout } from './compiler/layout';
 
 function createIframe(rpcChannelId: string): HTMLIFrameElement {
   const base = new URL('/sandbox', window.document.baseURI).href;
@@ -23,7 +24,7 @@ function createIframe(rpcChannelId: string): HTMLIFrameElement {
         <meta charset="utf-8"/>
         <meta name="rpc-channel-id" content="${escape(rpcChannelId)}"/>
         <base href="${escape(base)}">
-        <script async type="text/javascript" src="/sandbox.js">
+        <script async type="text/javascript" src="/sandbox/sandbox.js">
         </script>
       </head>
       <body>
@@ -41,27 +42,56 @@ function createIframe(rpcChannelId: string): HTMLIFrameElement {
   return iframe;
 }
 
-export type CellId = number | string;
+export type ChartData = [open: number, high: number, low: number, close: number, volume: number][];
 
-export class VM {
+export interface ExecResult {
+  series: number[][];
+}
+
+export class Experiment {
   private iframe: HTMLIFrameElement;
   private RPC: RPC;
   readonly id: string;
+  private _layout?: Layout;
+  private data?: ChartData;
+  private source?: string;
 
-  constructor(private rpcHandler) {
+  constructor(private rpcHandler: RpcHandlers) {
     this.id = randomString();
   }
 
-  init() {
+  private init() {
     if (this.RPC) return;
     this.iframe = createIframe(this.id);
     this.RPC = new WindowRPC(this.iframe.contentWindow, this.id);
     this.RPC.start(this.rpcHandler);
   }
 
-  async exec(code: string, id: CellId) {
+  get layout(): Layout | undefined {
+    return this._layout;
+  }
+
+  async setData(data: ChartData) {
     this.init();
-    await this.RPC.call('runCell', code, id);
+    this.data = data;
+    this.RPC.call('setData', data);
+  }
+
+  /**
+   * Set the source code for the current program.
+   * @param sourceCode A JavaScript document.
+   */
+  async setSourceCode(sourceCode: string) {
+    this.init();
+    this._layout = await this.RPC.call('compileProgram', sourceCode);
+    this.source = sourceCode;
+  }
+
+  execute(): Promise<ExecResult> {
+    this.init();
+    if (!this.data || !this.source)
+      throw new Error('You must first provide source code and the data.');
+    return this.RPC.call('execute');
   }
 
   destroy() {
@@ -75,24 +105,4 @@ export class VM {
   }
 }
 
-export function createRPCHandler(lookupCell: any) {
-  return {
-    plot(cellId: CellId, data: any): void {
-      const oh = lookupCell(cellId);
-      if (!oh) return;
-      oh.plot(data);
-    },
-
-    print(cellId: CellId, data: any): void {
-      const oh = lookupCell(cellId);
-      if (!oh) return;
-      oh.print(data);
-    },
-
-    downloadProgress(cellId: CellId, data: any): void {
-      const oh = lookupCell(cellId);
-      if (!oh) return;
-      oh.downloadProgress(data);
-    },
-  };
-}
+function createRPCHandler() {}
