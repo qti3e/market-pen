@@ -2,4 +2,5 @@
 /public/build/
 /public/sandbox/
 /public/monaco/
+/core/build/
 .DS_Store

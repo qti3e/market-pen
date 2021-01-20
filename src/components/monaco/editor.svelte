@@ -1,6 +1,8 @@
 <script context="module" lang="ts">
   let monaco: typeof import('monaco-editor/esm/vs/editor/editor.api');
   const monaco_promise = import('/monaco/monaco.bundle.js' as any);
+  const lib_promise = fetch('/sandbox/lib.d.ts').then((x) => x.text());
+
   monaco_promise.then((mod) => {
     monaco = mod.default;
 
@@ -17,22 +19,11 @@
       lib: ['es2019'],
     });
 
-    // extra libraries
-    const libSource = [
-      '    /**',
-      '     * Just another class.',
-      '     */',
-      'declare class Facts {',
-      '    /**',
-      '     * Returns the next fact',
-      '     */',
-      '    static next():string',
-      '}',
-    ].join('\n');
-
-    const libUri = 'ts:market-lab/lib.d.ts';
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
-    monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
+    lib_promise.then((libSource) => {
+      const libUri = 'ts:market-lab/lib.d.ts';
+      monaco.languages.typescript.javascriptDefaults.addExtraLib(libSource, libUri);
+      monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
+    });
   });
 </script>
 
@@ -53,14 +44,13 @@
   /** The theme to be used for rendering. */
   export let theme: 'vs' | 'vs-dark' | 'hc-black' = 'vs-dark';
 
-  var jsCode = [
-    '"use strict";',
-    '',
-    'class Chuck {',
-    '    greet() {',
-    '        return Facts.next();',
-    '    }',
-    '}',
+  let jsCode = [
+    'const SMA30 = $.ta.simple_moving_average(30);',
+    'const SMA20 = $.ta.simple_moving_average(20);',
+    '$(() => {',
+    '  console.log("SMA30", SMA30.valueOf());',
+    '  console.log("SMA20", SMA20.valueOf());',
+    '})',
   ].join('\n');
 
   function init() {

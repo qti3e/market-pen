@@ -403,7 +403,7 @@ export abstract class Operation<O, I = unknown> extends ComputationNode<O, I> {
   /** @internal */
   abstract toNumeric(): NumericOperation;
 
-  protected _mathOp(values: MathOperand[], fn: (...args: number[]) => number) {
+  private _mathOp(values: MathOperand[], fn: (...args: number[]) => number) {
     return new MathOperation([this.toNumeric(), ...values.map(fromMathOperand)], fn);
   }
 
@@ -477,9 +477,7 @@ export class Primitive extends Operation<number, never> {
   }
 }
 
-/**
- * @internal
- */
+/** @internal */
 export class MathOperation<I> extends Operation<number, I> {
   constructor(
     readonly operands: ReadonlyArray<ComputationNode<I>>,
@@ -597,6 +595,7 @@ export class MathOperation<I> extends Operation<number, I> {
   }
 }
 
+/** @internal */
 export class IndicatorOperation<O, I extends DataPoint | number> extends Operation<O, I> {
   constructor(readonly source: Operation<I>, readonly indicator: indicators.Indicator<I, O>) {
     super();
@@ -637,7 +636,7 @@ export class NumericIndicators<
    *
    * TR = max[(high - low), abs(high - close<sub>prev</sub>), abs(low - close<sub>prev</sub>)]
    */
-  true_range(): IndicatorOperation<number, DataPoint | number> {
+  true_range(): Operation<number, DataPoint | number> {
     return new IndicatorOperation(this.source, new indicators.TrueRange());
   }
 
@@ -656,7 +655,7 @@ export class NumericIndicators<
    *
    * @param period number of periods (integer greater than 0)
    */
-  simple_moving_average(period: number): IndicatorOperation<number | null, number | DataPoint> {
+  simple_moving_average(period: number): Operation<number | null, number | DataPoint> {
     return new IndicatorOperation(this.numericSource, new indicators.SimpleMovingAverage(period));
   }
 }
@@ -672,7 +671,7 @@ export class CandleStickIndicators extends NumericIndicators<Candle> {
   /**
    * The range of a day's trading which is simply _high_ - _low_.
    */
-  range(): IndicatorOperation<number, DataPoint> {
+  range(): Operation<number, DataPoint> {
     return new IndicatorOperation(this.source, new indicators.Range());
   }
 }

@@ -1,6 +1,6 @@
-import { Primitive, Candle } from './api/operation';
-import { DataPoint } from './indicators/interface';
-import { ComputationNode } from './api/nodes';
+import { Primitive, Candle } from './build/api/operation';
+import { DataPoint } from './build/indicators/interface';
+import { ComputationNode } from './build/api/nodes';
 
 // Declaration file for global variables in the market-watch runtime.
 

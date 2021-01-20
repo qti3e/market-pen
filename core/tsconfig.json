@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "build",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "es2019",
+    "strict": false,
+    "alwaysStrict": true,
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "strictNullChecks": false,
+    "lib": ["es2017", "dom"],
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "stripInternal": true,
+    "declaration": true
+  },
+  "include": ["**/*"],
+  "exclude": ["../node_modules", "runtime.d.ts", "build"]
+}
