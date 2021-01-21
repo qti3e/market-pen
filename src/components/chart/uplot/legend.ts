@@ -21,7 +21,7 @@ export function legendAsTooltipPlugin({ className, style }: LegendAsTooltipOptio
       position: 'absolute',
       left: 0,
       top: 0,
-      zIndex: 100,
+      zIndex: 1000,
       // boxShadow: '2px 2px 10px rgba(0,0,0,0.5)',
       ...style,
     });

@@ -4,6 +4,10 @@
   :global(.u-select) {
     background: rgba(255, 255, 255, 0.07);
   }
+
+  :global(.u-legend) {
+    z-index: 100;
+  }
 </style>
 
 <script context="module" lang="ts">
