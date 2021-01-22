@@ -8,7 +8,11 @@ export interface TickResult {
 }
 
 export class Program {
-  constructor(readonly view: View, readonly plan: ReadonlyArray<ComputationNode>) {}
+  constructor(
+    readonly view: View,
+    readonly numSeries: number,
+    readonly plan: ReadonlyArray<ComputationNode>
+  ) {}
 
   next(data: DataPoint): TickResult {
     const { plan } = this;

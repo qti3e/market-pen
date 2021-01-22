@@ -1,6 +1,6 @@
 import { RPC, WindowRPC } from './rpc';
 import { compile, formatException } from './compiler/compiler';
-import type { ChartData, ExecResult } from './experiment';
+import { ChartData, ExecResult } from './experiment';
 import { Program } from './compiler/program';
 import { View } from './compiler/view';
 import { DataPoint } from './indicators/interface';
@@ -44,12 +44,15 @@ async function setData(chartData: ChartData): Promise<void> {
 
 async function execute(source: string): Promise<ExecResult> {
   executed = true;
-  const result: ExecResult = { series: [] };
+  const count = program.numSeries;
+  const series: number[][] = Array(count)
+    .fill(null)
+    .map((_) => []);
   for (let i = 0, n = data.length; i < n; ++i) {
     const res = program.next(data[i]);
-    result.series.push(res.series);
+    for (let j = 0; j < count; ++j) series[j].push(res.series[j]);
   }
-  return result;
+  return { series };
 }
 
 window.addEventListener('error', (ev: ErrorEvent) => {

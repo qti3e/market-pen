@@ -45,6 +45,19 @@ function createIframe(rpcChannelId: string): HTMLIFrameElement {
 export type ChartData = [open: number, high: number, low: number, close: number, volume: number][];
 
 export interface ExecResult {
+  /**
+   * Each member in the array is an axis of the data.
+   * ```
+   * [
+   *  open: number[],
+   *  high: number[],
+   *  low: number[],
+   *  close: number[],
+   *  volume: number[],
+   *  ...
+   * ]
+   * ```
+   */
   series: number[][];
 }
 

@@ -73,7 +73,7 @@ export class Compiler {
    */
   compile(): Program {
     const plan = this.compileExecutionPlan();
-    return new Program(this.view, plan);
+    return new Program(this.view, this.series.size, plan);
   }
 }
 
