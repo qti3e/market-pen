@@ -14,7 +14,7 @@
 import { escape } from 'he';
 import { RPC, WindowRPC, RpcHandlers } from './rpc';
 import { randomString } from './util';
-import { Layout } from './compiler/layout';
+import { View } from './compiler/view';
 
 function createIframe(rpcChannelId: string): HTMLIFrameElement {
   const base = new URL('/sandbox', window.document.baseURI).href;
@@ -52,7 +52,7 @@ export class Experiment {
   private iframe: HTMLIFrameElement;
   private RPC: RPC;
   readonly id: string;
-  private _layout?: Layout;
+  private _layout?: View;
   private data?: ChartData;
   private source?: string;
 
@@ -67,7 +67,7 @@ export class Experiment {
     this.RPC.start(this.rpcHandler);
   }
 
-  get layout(): Layout | undefined {
+  get layout(): View | undefined {
     return this._layout;
   }
 

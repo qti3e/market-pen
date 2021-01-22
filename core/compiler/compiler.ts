@@ -1,48 +1,14 @@
-import { ComputationNode, WatchNode, WatchCB, WatchChangeNode } from '../api/nodes';
-import { Candle, Primitive } from '../api/operation';
+import { View } from './view';
+import { ComputationNode } from '../api/nodes';
 import { toposort, global, globalEval } from '../util';
-import type { Layout } from './layout';
 import { Program } from './program';
-import type { DataPoint } from '../indicators/interface';
 import { Transpiler } from './transpiler';
+import { generateGlobalContext } from './global';
 
 export class Compiler {
   private readonly nodes = new Set<ComputationNode<never>>();
   private readonly series = new Map<any, number>();
-  private readonly layout: Layout = [];
-
-  /**
-   * Generate a set of document specific global variables.
-   */
-  getContext(): Record<string, any> {
-    const compiler = this;
-
-    function $(arg: number | ((data: DataPoint, isFinal: boolean) => void)) {
-      if (typeof arg === 'function') return void compiler.pin(new WatchNode($ as any, arg));
-      return new Primitive(Number(arg));
-    }
-    $.__proto__ = Candle.prototype;
-    Object.assign($, new Candle());
-
-    function watch<T>(node: ComputationNode<T>, cb: WatchCB<T>, skipFirst: boolean = false): void {
-      compiler.pin(new WatchChangeNode(node, cb, skipFirst));
-    }
-
-    watch.always = function watch<T>(node: ComputationNode<T>, cb: WatchCB<T>): void {
-      compiler.pin(new WatchNode(node, cb));
-    };
-
-    function pin(node: ComputationNode<never>) {
-      compiler.pin(node);
-      return node;
-    }
-
-    return {
-      $,
-      watch,
-      pin,
-    };
-  }
+  readonly view: View = { plots: [], indicators: [] };
 
   /**
    * Add a new data series to be plotted the index in the `series` array is returned.
@@ -106,7 +72,7 @@ export class Compiler {
    */
   compile(): Program {
     const plan = this.compileExecutionPlan();
-    return new Program(this.layout, plan);
+    return new Program(this.view, plan);
   }
 }
 
@@ -118,7 +84,7 @@ let transpiler: Transpiler;
  */
 export async function compile(code: string): Promise<Program> {
   const compiler = new Compiler();
-  const ctx = compiler.getContext();
+  const ctx = generateGlobalContext(compiler);
 
   const keys = Object.keys(ctx);
   const values = Object.values(ctx);

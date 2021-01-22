@@ -81,3 +81,33 @@ export class WatchNode<T> extends ComputationNode<never, T> {
     this.cb(data as any, true);
   }
 }
+
+export type PlotFunction = (candle: DataPoint, isFinal: boolean) => number | null;
+
+export class PlotFunctionNode extends ComputationNode<never, never> {
+  constructor(readonly index: number, readonly cb: PlotFunction) {
+    super();
+  }
+
+  predecessors() {
+    return [];
+  }
+
+  next(ctx: ExecutionContext) {
+    ctx.series[this.index] = this.cb(ctx.$, true);
+  }
+}
+
+export class PlotNode extends ComputationNode<never, number | null> {
+  constructor(readonly index: number, readonly source: ComputationNode<number | null>) {
+    super();
+  }
+
+  predecessors() {
+    return [this.source];
+  }
+
+  next(ctx: ExecutionContext) {
+    ctx.series[this.index] = this.source._data as number | null;
+  }
+}

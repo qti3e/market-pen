@@ -1,6 +1,7 @@
 import { Primitive, Candle } from './build/api/operation';
 import { DataPoint } from './build/indicators/interface';
 import { ComputationNode } from './build/api/nodes';
+import { PlotSource, IndicatorOptions } from './build/compiler/global';
 
 // Declaration file for global variables in the market-watch runtime.
 
@@ -63,45 +64,25 @@ declare namespace watch {
   export function always<T>(node: ComputationNode<T>, cb: WatchCB<T>): void;
 }
 
-/**
- * Any type that can be used as a data source for chart.
- */
-type PlotDataSource =
-  | ComputationNode<number | null>
-  | ((candle: DataPoint, isFinal: boolean) => number | null);
+declare function pin<T>(source: ComputationNode<T>): ComputationNode<T>;
 
-/**
- * A batch of series.
- */
-type PlotDataSourceWithLegend = [string, PlotDataSource];
+declare function plot(
+  title: string,
+  source: PlotSource,
+  type?: 'line' | 'point' | 'bar' | 'step',
+  color?: string
+): void;
 
-type PlotType = 'line' | 'bar' | 'step' | 'point';
+declare function indicator(
+  title: string,
+  source: PlotSource,
+  options: Partial<IndicatorOptions>
+): IndicatorResult;
 
-/**
- * Plot the given data on the main OHLCV (candlestick) chart.
- * @param legend Legend to display for the data.
- * @param source The data source to be used for y values.
- * @param kind Type of the plot.
- */
-declare function plot(legend: string, source: PlotDataSource, kind?: PlotType): void;
-
-/**
- * Plot the given data on the main OHLCV (candlestick) chart.
- * @param sources Legend to display for the data.
- * @param kind Type of the plot.
- */
-declare function plot(sources: PlotDataSourceWithLegend[], kind?: PlotType): void;
-
-declare namespace plot {
-  interface Chart {
-    plot(legend: string, source: PlotDataSource, kind?: PlotType): Chart;
-    plot(sources: PlotDataSourceWithLegend[], kind?: PlotType): Chart;
-  }
-
-  /**
-   * Create a new chart separate from the main OHLCV.
-   * @param title Name of the chart.
-   * @param domain Range of the values for y-axis.
-   */
-  function chart(title: string, domain?: [number, number]): Chart;
+interface IndicatorResult {
+  line(title: string, source: PlotSource, color?: string): IndicatorResult;
+  bar(title: string, source: PlotSource, color?: string): IndicatorResult;
+  step(title: string, source: PlotSource, color?: string): IndicatorResult;
+  point(title: string, source: PlotSource, color?: string): IndicatorResult;
+  asLine(): IndicatorResult;
 }

@@ -2,7 +2,7 @@ import { RPC, WindowRPC } from './rpc';
 import { compile, formatException } from './compiler/compiler';
 import type { ChartData, ExecResult } from './experiment';
 import { Program } from './compiler/program';
-import { Layout } from './compiler/layout';
+import { View } from './compiler/view';
 import { DataPoint } from './indicators/interface';
 
 const channelId = document.querySelector('meta[name=rpc-channel-id]').getAttribute('content');
@@ -19,11 +19,11 @@ let program: Program;
 let data: DataPoint[] = [];
 let executed = false;
 
-async function compileProgram(code: string): Promise<Layout> {
+async function compileProgram(code: string): Promise<View> {
   program = await compile(code);
   sourceCode = code;
   executed = false;
-  return program.layout;
+  return program.view;
 }
 
 async function setData(chartData: ChartData): Promise<void> {
