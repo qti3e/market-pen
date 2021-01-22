@@ -4,6 +4,7 @@ import { toposort, global, globalEval } from '../util';
 import { Program } from './program';
 import { Transpiler } from './transpiler';
 import { generateGlobalContext } from './global';
+import { Candle } from '../api/operation';
 
 export class Compiler {
   private readonly nodes = new Set<ComputationNode<never>>();
@@ -85,6 +86,11 @@ let transpiler: Transpiler;
 export async function compile(code: string): Promise<Program> {
   const compiler = new Compiler();
   const ctx = generateGlobalContext(compiler);
+  compiler.addSeries(((ctx.$ as any) as Candle).open);
+  compiler.addSeries(((ctx.$ as any) as Candle).high);
+  compiler.addSeries(((ctx.$ as any) as Candle).low);
+  compiler.addSeries(((ctx.$ as any) as Candle).close);
+  compiler.addSeries(((ctx.$ as any) as Candle).volume);
 
   const keys = Object.keys(ctx);
   const values = Object.values(ctx);
