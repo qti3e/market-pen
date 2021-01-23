@@ -67,7 +67,7 @@ export function generateGlobalContext(compiler: Compiler) {
   }
 
   // ***  indicator  ******************************************************
-  function indicator(title: string, source: PlotSource, options: Partial<IndicatorOptions>) {
+  function indicator(title: string, source: PlotSource, options?: Partial<IndicatorOptions>) {
     let index: number;
     if (typeof source === 'function') {
       index = compiler.addSeries({});

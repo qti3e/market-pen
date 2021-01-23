@@ -56,7 +56,7 @@ fs.writeFileSync(
         const i = trimmed.indexOf('(');
         const j = trimmed.indexOf(')');
         if (i < 0 || j < 0) throw new Error('');
-        return spaces + trimmed.slice(4, i) + trimmed.slice(j + 1);
+        return spaces + 'readonly ' + trimmed.slice(4, i) + trimmed.slice(j + 1);
       }
 
       return line;

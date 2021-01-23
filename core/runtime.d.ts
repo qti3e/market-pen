@@ -66,6 +66,14 @@ declare namespace watch {
 
 declare function pin<T>(source: ComputationNode<T>): ComputationNode<T>;
 
+/**
+ * Plot a line on the main OHLCV chart.
+ *
+ * @param title Human-readable name of this plot.
+ * @param source The data source, either a function or a reactive-value.
+ * @param type What shape should be used to draw this?
+ * @param color An optional value for color.
+ */
 declare function plot(
   title: string,
   source: PlotSource,
@@ -73,13 +81,25 @@ declare function plot(
   color?: string
 ): void;
 
+/**
+ * Create a new indicator.
+ * @param title Name of the indicator.
+ * @param source Either a function or a reactive-value used as y-axis.
+ * @param options
+ */
 declare function indicator(
   title: string,
   source: PlotSource,
-  options: Partial<IndicatorOptions>
+  options?: Partial<IndicatorOptions>
 ): IndicatorResult;
 
 interface IndicatorResult {
+  /**
+   * Plot a line over the indicator.
+   * @param title
+   * @param source
+   * @param color
+   */
   line(title: string, source: PlotSource, color?: string): IndicatorResult;
   bar(title: string, source: PlotSource, color?: string): IndicatorResult;
   step(title: string, source: PlotSource, color?: string): IndicatorResult;
