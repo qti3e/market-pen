@@ -12,7 +12,8 @@ module.exports = {
             safelist: [
               'bg-primary-800',
               'cursor-default',
-              'hover:bg-primary-800'
+              'hover:bg-primary-800',
+              'text-yellow-300'
             ],
         }
     },
