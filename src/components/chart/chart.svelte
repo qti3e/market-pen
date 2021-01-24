@@ -50,7 +50,7 @@
     scales: {
       x: {
         distr: 2,
-      }
+      },
     },
     series: [
       {
@@ -87,7 +87,7 @@
       {
         show: true,
         stroke: '#fff',
-        values: "",
+        values: '',
         grid: {
           width: 1 / devicePixelRatio,
           stroke: '#2c3235',

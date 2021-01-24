@@ -95,6 +95,7 @@ export class Experiment {
    * @param sourceCode A JavaScript document.
    */
   async setSourceCode(sourceCode: string) {
+    if (sourceCode === this.source) return;
     this.init();
     this._layout = await this.RPC.call('compileProgram', sourceCode);
     this.source = sourceCode;

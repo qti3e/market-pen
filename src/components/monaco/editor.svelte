@@ -118,6 +118,10 @@
     editor.layout({ width, height });
   }
 
+  export function getValue() {
+    return editor.getValue();
+  }
+
   $: {
     if (editor) {
       editor.updateOptions({

@@ -99,7 +99,6 @@ export abstract class RPCBase implements RPC {
   }
 
   protected onMessage(message: Message): void {
-    console.log('message', message);
     switch (message.type) {
       case 'syn':
       case 'ack':

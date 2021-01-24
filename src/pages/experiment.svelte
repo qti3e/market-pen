@@ -6,9 +6,10 @@
 
 <script lang="ts">
   import Editor from '../components/monaco/editor.svelte';
-  import Chart from '../components/chart/chart.svelte';
+  import View from '../components/view/view.svelte';
   import { Experiment } from '../../core/experiment';
   import { onMount } from 'svelte';
+  import { getDataSource } from '../datasource';
 
   export let eid: string;
   let status: 'loading' | 'error' | 'ok' = 'ok';
@@ -19,10 +20,22 @@
   let period = '5M';
 
   let editor: Editor;
-  let chart: Chart;
-  let experiment: Experiment;
+  let experiment: Experiment = new Experiment({});
 
-  function execute() {}
+  let layout;
+  let data = getDataSource();
+  experiment.setData(data.chart);
+
+  let result: number[][] = null;
+
+  async function execute() {
+    const source = editor.getValue();
+    await experiment.setSourceCode(source);
+    const res = await experiment.execute();
+    layout = experiment.layout;
+    result = res.series;
+    console.log('DATA', result);
+  }
 
   function fork() {}
 
@@ -138,8 +151,9 @@
     </div>
 
     <div class="col-span-1 row-span-2 bg-primary-800 flex flex-col">
-      <Chart bind:this={chart} />
-      <Chart />
+      {#if result}
+        <View timeData={data.time} data={result} view={layout} />
+      {/if}
     </div>
   </div>
 {/if}
