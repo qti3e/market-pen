@@ -47,10 +47,9 @@
   let jsCode = [
     'const SMA30 = $.ta.simple_moving_average(30);',
     'const SMA20 = $.ta.simple_moving_average(20);',
-    '$(() => {',
-    '  console.log("SMA30", SMA30.valueOf());',
-    '  console.log("SMA20", SMA20.valueOf());',
-    '})',
+    '',
+    'plot("SMA20", SMA20);',
+    'plot("SMA30", SMA30, undefined, "#f00");',
   ].join('\n');
 
   function init() {

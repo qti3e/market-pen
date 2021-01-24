@@ -1,8 +1,8 @@
 <script lang="ts">
   import uPlot from 'uplot';
-  import type { Axis } from 'uplot';
+  import type { Axis, Series } from 'uplot';
   import type { Options } from '../chart/uplot/uPlot.svelte';
-  import type { View } from '../../../core/compiler/view';
+  import type { Plot, View } from '../../../core/compiler/view';
   import Chart from '../chart/uplot/uPlot.svelte';
   import { candlestickPlugin } from '../chart/uplot/candle';
   import { columnHighlightPlugin } from '../chart/uplot/column_highlight';
@@ -39,33 +39,48 @@
   const fmtDate = uPlot.fmtDate('{YYYY}-{MM}-{DD} {HH}:{mm}');
   const tzDate = (ts: number) => new Date(ts * 1e3);
 
-  const OHLCOptions: Options = {
+  const OHLCBaseSeries: Series[] = [
+    {
+      label: 'Date',
+      value: (_, ts) => fmtDate(tzDate(ts)),
+    },
+    {
+      label: 'Open',
+      value: (_, v) => fmtUSD(v, 2),
+    },
+    {
+      label: 'High',
+      value: (_, v) => fmtUSD(v, 2),
+    },
+    {
+      label: 'Low',
+      value: (_, v) => fmtUSD(v, 2),
+    },
+    {
+      label: 'Close',
+      value: (_, v) => fmtUSD(v, 2),
+    },
+  ];
+
+  let OHLCOptions: Options = {
     plugins: [
       columnHighlightPlugin({ className: 'bg-blue-100', style: { opacity: '0.5' } }),
       legendAsTooltipPlugin({ className: ['bg-primary-700', 'text-fg-primary', 'shadow-2xl'] }),
       candlestickPlugin(),
     ],
-    series: [
-      {
-        label: 'Date',
-        value: (_, ts) => fmtDate(tzDate(ts)),
-      },
-      {
-        label: 'Open',
-        value: (_, v) => fmtUSD(v, 2),
-      },
-      {
-        label: 'High',
-        value: (_, v) => fmtUSD(v, 2),
-      },
-      {
-        label: 'Low',
-        value: (_, v) => fmtUSD(v, 2),
-      },
-      {
-        label: 'Close',
-        value: (_, v) => fmtUSD(v, 2),
-      },
+    series: [],
+    axes: axes(),
+  };
+
+  let OHLCData: any;
+
+  $: {
+    OHLCData = [timeData, ...data.slice(0, 4), ...view.plots.map((plot) => data[plot.seriesIndex])];
+  }
+
+  $: {
+    OHLCOptions.series = [
+      ...OHLCBaseSeries,
       ...view.plots.map((plot) => ({
         label: plot.title,
         stroke: plot.color,
@@ -74,15 +89,8 @@
           show: false,
         },
       })),
-    ],
-    axes: axes(),
-  };
-
-  const OHLCData = [
-    timeData,
-    ...data.slice(0, 4),
-    ...view.plots.map((plot) => data[plot.seriesIndex]),
-  ] as any;
+    ];
+  }
 </script>
 
 <Chart options={OHLCOptions} data={OHLCData} />

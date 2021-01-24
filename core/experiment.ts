@@ -68,6 +68,8 @@ export class Experiment {
   private _layout?: View;
   private data?: ChartData;
   private source?: string;
+  private changed = false;
+  private execResult: ExecResult;
 
   constructor(private rpcHandler: RpcHandlers) {
     this.id = randomString();
@@ -88,6 +90,7 @@ export class Experiment {
     this.init();
     this.data = data;
     this.RPC.call('setData', data);
+    this.changed = true;
   }
 
   /**
@@ -99,13 +102,17 @@ export class Experiment {
     this.init();
     this._layout = await this.RPC.call('compileProgram', sourceCode);
     this.source = sourceCode;
+    this.changed = true;
   }
 
-  execute(): Promise<ExecResult> {
+  async execute(): Promise<ExecResult> {
     this.init();
     if (!this.data || !this.source)
       throw new Error('You must first provide source code and the data.');
-    return this.RPC.call('execute');
+    if (!this.changed && this.execResult) return this.execResult;
+    this.execResult = await this.RPC.call('execute');
+    this.changed = false;
+    return this.execResult;
   }
 
   destroy() {

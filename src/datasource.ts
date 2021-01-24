@@ -17,7 +17,7 @@ export function getDataSource(): DataSource {
 
   for (
     let i = 0, price = 1000, t = ((Date.now() / 1e3 / 300) | 0) * 300;
-    i < 100;
+    i < 200;
     ++i, t += 5 * 60
   ) {
     let change = (Math.random() - 0.5) * 60;
