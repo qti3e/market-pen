@@ -16,7 +16,7 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  const data: any = [[], [], [], [], [], [], []];
+  const data: any = [[], [], [], [], [], []];
 
   // random data
   for (
@@ -34,8 +34,7 @@
     data[2].push(high | 0);
     data[3].push(low | 0);
     data[4].push(close | 0);
-    data[5].push(randInt(10, 250));
-    data[6].push((open + close) / 2 + Math.random() * 100);
+    data[5].push((open + close) / 2 + Math.random() * 100);
     price += change;
   }
 
@@ -51,10 +50,7 @@
     scales: {
       x: {
         distr: 2,
-      },
-      vol: {
-        range: [0, 2500],
-      },
+      }
     },
     series: [
       {
@@ -78,10 +74,6 @@
         value: (u, v) => fmtUSD(v, 2),
       },
       {
-        label: 'Volume',
-        scale: 'vol',
-      },
-      {
         label: 'Test',
         value: (u, v) => fmtUSD(v, 2),
         stroke: '#3B82F6',
@@ -95,13 +87,19 @@
       {
         show: true,
         stroke: '#fff',
+        values: "",
         grid: {
           width: 1 / devicePixelRatio,
           stroke: '#2c3235',
         },
       },
       {
-        show: false,
+        show: true,
+        stroke: '#fff',
+        grid: {
+          width: 1 / devicePixelRatio,
+          stroke: '#2c3235',
+        },
       },
     ],
   };
