@@ -50,6 +50,7 @@
     '',
     'plot("SMA20", SMA20);',
     'plot("SMA30", SMA30, undefined, "#f00");',
+    'indicator("volume", $.volume);',
   ].join('\n');
 
   function init() {
