@@ -7,10 +7,13 @@
   import { candlestickPlugin } from '../chart/uplot/candle';
   import { columnHighlightPlugin } from '../chart/uplot/column_highlight';
   import { legendAsTooltipPlugin } from '../chart/uplot/legend';
+  import { indicatorBarPlugin } from '../chart/uplot/indicator_bar';
 
   export let view: View;
   export let timeData: number[];
   export let data: number[][];
+
+  const barOptions: { open: number[]; close: number[] } = { open: [], close: [] };
 
   function fmtUSD(val: number, dec: number) {
     return '$' + val.toFixed(dec).replace(/\d(?=(\d{3})+(?:\.|$))/g, '$&,');
@@ -48,11 +51,15 @@
   ];
 
   function optionsForIndicator(indicator: Indicator): Options {
+    const plugins = [
+      columnHighlightPlugin({ className: 'bg-blue-100', style: { opacity: '0.5' } }),
+      legendAsTooltipPlugin({ className: ['bg-primary-700', 'text-fg-primary', 'shadow-2xl'] }),
+    ];
+
+    if (indicator.type === 'bar') plugins.push(indicatorBarPlugin(barOptions));
+
     return {
-      plugins: [
-        columnHighlightPlugin({ className: 'bg-blue-100', style: { opacity: '0.5' } }),
-        legendAsTooltipPlugin({ className: ['bg-primary-700', 'text-fg-primary', 'shadow-2xl'] }),
-      ],
+      plugins,
       cursor: cursorOpts,
       series: [
         {
@@ -61,6 +68,7 @@
         },
         {
           label: indicator.title,
+          stroke: '#ff0',
           points: {
             show: false,
           },
@@ -129,11 +137,12 @@
       data[indicator.seriesIndex],
       ...indicator.plots.map((plot) => data[plot.seriesIndex]),
     ]);
+    barOptions.open = data[0];
+    barOptions.close = data[3];
   }
 
   $: {
     OHLCOptions.series = [...OHLCBaseSeries, ...view.plots.map((plot) => seriesForPlot(plot))];
-
     indicatorsOptions = view.indicators.map((indicator) => optionsForIndicator(indicator));
   }
 </script>

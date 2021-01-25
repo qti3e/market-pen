@@ -50,7 +50,8 @@
     '',
     'plot("SMA20", SMA20);',
     'plot("SMA30", SMA30, undefined, "#f00");',
-    'indicator("volume", $.volume);',
+    'indicator("volume", $.volume)',
+    '    .line("SMA30", $.volume.ta.simple_moving_average(30), "#00f");',
   ].join('\n');
 
   function init() {
