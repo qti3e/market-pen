@@ -5,8 +5,8 @@
     background: rgba(255, 255, 255, 0.07);
   }
 
-  :global(.u-legend) {
-    z-index: 100;
+  :global(.u-value) {
+    font-weight: bold;
   }
 </style>
 

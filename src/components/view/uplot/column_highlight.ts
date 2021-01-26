@@ -27,13 +27,14 @@ export function columnHighlightPlugin({ className, style }: ColumnHighlightOptio
 
     underEl.appendChild(highlightEl);
 
+    highlightEl.style.display = null;
     // show/hide highlight on enter/exit
     overEl.addEventListener('mouseenter', () => {
-      highlightEl.style.display = null;
+      // highlightEl.style.display = null;
     });
 
     overEl.addEventListener('mouseleave', () => {
-      highlightEl.style.display = 'none';
+      // highlightEl.style.display = 'none';
     });
   }
 

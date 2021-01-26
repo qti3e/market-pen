@@ -53,7 +53,7 @@
   function optionsForIndicator(indicator: Indicator): Options {
     const plugins = [
       columnHighlightPlugin({ className: 'bg-blue-100', style: { opacity: '0.5' } }),
-      legendAsTooltipPlugin({ className: ['bg-primary-700', 'text-fg-primary', 'shadow-2xl'] }),
+      legendAsTooltipPlugin(),
     ];
 
     if (indicator.type === 'bar') plugins.push(indicatorBarPlugin(barOptions));
@@ -99,19 +99,19 @@
       value: (_, ts) => fmtDate(tzDate(ts)),
     },
     {
-      label: 'Open',
+      label: 'O',
       value: (_, v) => fmtUSD(v, 2),
     },
     {
-      label: 'High',
+      label: 'H',
       value: (_, v) => fmtUSD(v, 2),
     },
     {
-      label: 'Low',
+      label: 'L',
       value: (_, v) => fmtUSD(v, 2),
     },
     {
-      label: 'Close',
+      label: 'C',
       value: (_, v) => fmtUSD(v, 2),
     },
   ];
@@ -122,7 +122,7 @@
   let OHLCOptions: Options = {
     plugins: [
       columnHighlightPlugin({ className: 'bg-blue-100', style: { opacity: '0.5' } }),
-      legendAsTooltipPlugin({ className: ['bg-primary-700', 'text-fg-primary', 'shadow-2xl'] }),
+      legendAsTooltipPlugin({ className: ['text-gray-200'] }),
       candlestickPlugin(),
     ],
     cursor: cursorOpts,
