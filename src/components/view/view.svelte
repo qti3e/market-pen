@@ -1,13 +1,13 @@
 <script lang="ts">
   import uPlot from 'uplot';
   import type { Axis, Series } from 'uplot';
-  import type { Options } from '../chart/uplot/uPlot.svelte';
+  import type { Options } from './uplot/uPlot.svelte';
   import type { Indicator, Plot, View } from '../../../core/compiler/view';
-  import Chart from '../chart/uplot/uPlot.svelte';
-  import { candlestickPlugin } from '../chart/uplot/candle';
-  import { columnHighlightPlugin } from '../chart/uplot/column_highlight';
-  import { legendAsTooltipPlugin } from '../chart/uplot/legend';
-  import { indicatorBarPlugin } from '../chart/uplot/indicator_bar';
+  import Chart from './uplot/uPlot.svelte';
+  import { candlestickPlugin } from './uplot/candle';
+  import { columnHighlightPlugin } from './uplot/column_highlight';
+  import { legendAsTooltipPlugin } from './uplot/legend';
+  import { indicatorBarPlugin } from './uplot/indicator_bar';
 
   export let view: View;
   export let timeData: number[];
