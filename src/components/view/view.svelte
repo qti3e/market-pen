@@ -15,10 +15,6 @@
 
   const barOptions: { open: number[]; close: number[] } = { open: [], close: [] };
 
-  function fmtUSD(val: number, dec: number) {
-    return '$' + val.toFixed(dec).replace(/\d(?=(\d{3})+(?:\.|$))/g, '$&,');
-  }
-
   const cursorOpts = {
     lock: true,
     focus: {
@@ -100,19 +96,15 @@
     },
     {
       label: 'O',
-      value: (_, v) => fmtUSD(v, 2),
     },
     {
       label: 'H',
-      value: (_, v) => fmtUSD(v, 2),
     },
     {
       label: 'L',
-      value: (_, v) => fmtUSD(v, 2),
     },
     {
       label: 'C',
-      value: (_, v) => fmtUSD(v, 2),
     },
   ];
 
