@@ -5,11 +5,13 @@
 </style>
 
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Editor from '../components/monaco/editor.svelte';
   import View from '../components/view/view.svelte';
   import { Experiment } from '../../core/experiment';
-  import { onMount } from 'svelte';
   import { getDataSource } from '../datasource';
+  import { randomString } from '../../core/util';
+  import { WindowRPC } from '../../core/rpc';
 
   export let eid: string;
   let status: 'loading' | 'error' | 'ok' = 'ok';
@@ -37,7 +39,27 @@
     console.log('DATA', result);
   }
 
-  function fork() {}
+  function fork() {
+    openPopup();
+  }
+
+  function openPopup() {
+    const channelId = randomString();
+    const remote = open('/dedicated-window/' + channelId);
+    const rpc = new WindowRPC(remote, channelId);
+
+    rpc.start({
+      closed() {
+        console.log('Closed');
+        rpc.stop();
+      },
+    });
+
+    let x = 0;
+    setInterval(() => {
+      rpc.call('setText', 'John!' + x++);
+    }, 1000);
+  }
 
   onMount(async () => {
     console.log('EID', eid);

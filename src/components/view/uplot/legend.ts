@@ -37,7 +37,6 @@ export function legendAsTooltipPlugin({ className, style }: LegendAsTooltipOptio
     for (let i = 0; i < labels.length; ++i) {
       let color = u.series[i].stroke;
       if (typeof color === 'function') color = color(u, i);
-      console.log(color);
       if (typeof color === 'string') {
         labels[i].style.color = color;
       }

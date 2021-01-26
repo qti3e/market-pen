@@ -1,8 +1,9 @@
 <script>
   import { Router, Route } from 'svelte-routing';
   import Experiments from './pages/experiments.svelte';
-  import Experiment from './pages/experiment.svelte';
+  import Editor from './pages/editor.svelte';
   import Landing from './pages/landing.svelte';
+  import DedicatedView from './pages/dedicated_view.svelte';
 
   let url = '';
 </script>
@@ -10,6 +11,10 @@
 <Router {url}>
   <Route path="/">
     <Landing />
+  </Route>
+
+  <Route path="/dedicated-window/:cid" let:params>
+    <DedicatedView channelId={params.cid} />
   </Route>
 
   <Route path="/app/*">
@@ -34,8 +39,8 @@
           <Route path="/experiments">
             <Experiments />
           </Route>
-          <Route path="/experiment/:eid" let:params>
-            <Experiment eid={params.eid} />
+          <Route path="/editor/:eid" let:params>
+            <Editor eid={params.eid} />
           </Route>
         </Router>
       </div>

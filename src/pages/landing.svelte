@@ -35,7 +35,7 @@
       </div>
       <div class="flex flex-col items-center mt-12 text-center">
         <Link
-          to="/app/experiment/xxx"
+          to="/app/editor/xxx"
           class="flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-secondary-600 rounded-md sm:mb-0 hover:bg-secondary-700 sm:w-auto"
         >
           Try It Free
