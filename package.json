@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build:all": "npm run build && npm run build:monaco && npm run build:sandbox && npm run build:lib",
+    "build": "npm run build:ui && npm run build:monaco && npm run build:sandbox && npm run build:lib",
     "build:monaco": "rollup -c ./monaco/rollup.config.js",
     "build:lib": "node ./scripts/build-lib.js",
     "build:sandbox": "rollup -c ./core/rollup.config.js",
-    "build": "rollup -c",
+    "build:ui": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public -p 3000 --single",
     "validate": "svelte-check",
